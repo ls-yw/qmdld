@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link href="/plugins/bootstrap/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/base.css?v=<?php echo time();?>" rel="stylesheet">
+<script src="/static/js/jquery.min.js"></script>
+</head>
+<body id="main">
+	<div class="container" id="index">
+		<div class="row border-bottom">
+			<div class="col-md-6 border-right">
+			     <div class="loginForm row">
+			         <div class="col-md-12 form-horizontal">
+			             <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">用户名</label>
+                            <div class="col-sm-10">
+                              <input type="user_name" class="form-control" id="user_name" placeholder="用户名">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                              <button type="button" class="btn btn-default" onclick="goLogin();">登录</button>
+                            </div>
+                          </div>
+			         </div>
+			     </div>
+			     <div class="userInfo row" style="display: none;">
+			         <div class="row">
+			             <div class="col-md-4"><img class="headimgurl" src="" width="98%"/></div>
+			             <div class="col-md-8">
+			                 <div class="row">
+			                     <div class="col-md-6">姓名：<span class="name"></span></div>
+			                     <div class="col-md-6">等级：<span class="lvl"></span></div>
+			                 </div>
+			                 <div class="row">
+			                     <div class="col-md-6">uid：<span class="uid"></span></div>
+			                     <div class="col-md-6">VIP：<span class="vip_lvl"></span></div>
+			                 </div>
+			                 <div class="row">
+			                     <div class="col-md-6">战斗力：<span class="attack_power"></span></div>
+			                     <div class="col-md-6">性别：<span class="sex"></span></div>
+			                 </div>
+			                 <div class="row">
+			                     <div class="col-md-6">帮派ID：<span class="fac_id"></span></div>
+			                     <div class="col-md-6">帮派名称：<span class="fac_name"></span></div>
+			                 </div>
+			                 <div class="row">
+			                     <div class="col-md-6">经验：<span class="exp"></span></div>
+			                     <div class="col-md-6">能量：<span class="vit"></span></div>
+			                 </div>
+			                 <div class="row">
+			                     <div class="col-md-9"><span class="h5token"></span></div>
+			                     <div class="col-md-3"><button type="button" class="editToken">修改</button></div>
+			                 </div>
+			                 <div class="row">
+			                     <div class="col-md-6"><button type="button" onclick="refreshUserInfo();">刷新信息</button></div>
+			                     <div class="col-md-6"><button type="button" onclick="logout();">退出</button></div>
+			                 </div>
+			             </div>
+			         </div>
+			     </div>
+			</div>
+			<div class="col-md-6">未定</div>
+		</div>
+		<div class="row border-bottom config">
+			<div class="col-md-12">
+			 <label class="checkbox-inline">
+              <input type="checkbox" id="inlineCheckbox1" value="option1"> 1
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="inlineCheckbox2" value="option2"> 2
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="inlineCheckbox3" value="option3"> 3
+            </label>
+			</div>
+			<div class="col-md-12 text-center"><button type="button" class="btn btn-primary">保存</button></div>
+		</div>
+		<div class="row">
+			<div class="logs">日志</div>
+		</div>
+	</div>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/index.js"></script>
+</body>
+</html>
