@@ -4,6 +4,7 @@ namespace Services;
 use Basic\BaseService;
 use Library\Curl;
 use Library\Log;
+use Models\UserInfo;
 
 class QualifyingService extends BaseService
 {
@@ -39,6 +40,7 @@ class QualifyingService extends BaseService
             if($data['result'] == '0'){
                 Log::dld($user['id'], '王者争霸个人赛还有'.$data['free_times'].'次免费次数');
                 Log::dld($user['id'], '当前排位'.$data['sname']." {$data['star']}星");
+                (new UserInfo())->updateData(['qualifying'=>$data['sname']." {$data['star']}星", 'qualifying_num'=>$data['free_times']], ['user_id'=>$user['id']]);
                 //领取胜利次数奖励
                 foreach ($data['win_award'] as $key => $val){
                     if($data['win_times'] >= $val['times'] && $val['flag'] == 0){  //领取奖励

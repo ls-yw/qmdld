@@ -16,7 +16,7 @@ class BaseService{
         $this->_user = DI::getDefault()->get('session')->get('user');
 	}
 
-	public function dealResult($result, $user_id) {
+	protected function dealResult($result, $user_id) {
 	   if($result['result'] == '110'){  //鉴权失败
             Log::dld($user_id, $result['msg']);
             (new User())->updateData(['h5token'=>''], ['id'=>$user_id]);
@@ -33,7 +33,7 @@ class BaseService{
 	 * @param unknown $awards
 	 * @create_time 2018年1月18日
 	 */
-    public function getAwardsName($awards)
+    protected function getAwardsName($awards)
     {
         $content = '';
         if(empty($awards))return $content;

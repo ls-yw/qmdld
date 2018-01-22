@@ -4,6 +4,7 @@ namespace Services;
 use Basic\BaseService;
 use Library\Curl;
 use Library\Log;
+use Models\UserInfo;
 
 class FactionService extends BaseService
 {
@@ -49,6 +50,7 @@ class FactionService extends BaseService
                         
                     }
                 }
+                (new UserInfo())->updateData(['fac_name'=>$data['faction_base']['name']], ['user_id'=>$user['id']]);
             }
             return true;
         }

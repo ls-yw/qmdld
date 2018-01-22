@@ -40,7 +40,7 @@ class ServantService extends BaseService
                 foreach ($data['servant_array'] as $val){
                     if($val['status'] == 3){  //有家丁在
                         $workTime = (int)substr(floor($val['work_time'] / 60), -1);
-                        if($workTime >= 0 && $workTime < 3){
+                        if($workTime >= 0 && $workTime < 2){
                             $this->getCash($user, $val['idx']);
                         }
                     }

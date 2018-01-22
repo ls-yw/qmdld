@@ -40,6 +40,8 @@ class BasicService extends BaseService
     public function updateAll($user)
     {
         $this->getInfo($user);
+        (new OtherService())->getUnlockPage($user);
+        (new OtherService())->handbook($user);
     }
     
     /**

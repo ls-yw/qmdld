@@ -32,7 +32,7 @@ class InfoController extends BaseController
      * @create_time 2018年1月11日
      */
     public function updateinfoAction() {
-        $res = (new BasicService())->getInfo($this->_user);
+        $res = (new BasicService())->updateAll($this->_user);
         if($res === false){
             return $this->ajaxReturn('', 1, '更新失败');
         }

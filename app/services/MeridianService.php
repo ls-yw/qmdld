@@ -4,6 +4,7 @@ namespace Services;
 use Basic\BaseService;
 use Library\Curl;
 use Library\Log;
+use Models\UserInfo;
 
 class MeridianService extends BaseService
 {
@@ -140,6 +141,7 @@ class MeridianService extends BaseService
         while ($info && $info['prestige'] >= 300) {
             $info = $this->meridian($user, $info['act_npc']);
         }
+        (new UserInfo())->updateData(['prestige'=>$info['prestige'], 'spirit'=>$info['spirit']], ['user_id'=>$user['id']]);
         Log::dld($user['id'], '剩余'. $info['prestige']." 威望，小于300，不造访");
         return false;
     }
@@ -174,7 +176,7 @@ class MeridianService extends BaseService
             if($data['result'] == '0'){
                 Log::dld($user['id'], $data['line1'].' '.$data['line2']." 剩余威望：{$data['prestige']}");
                 if(count($data['awards']) > 0)$this->usedAwards($user, $data['awards']);
-                $res = ['prestige'=>$data['prestige'], 'act_npc'=>$data['act_npc']];
+                $res = ['prestige'=>$data['prestige'], 'act_npc'=>$data['act_npc'], 'spirit'=>$data['spirit']];
                 return $res;
             }else{
                 return false;
