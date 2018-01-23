@@ -235,13 +235,14 @@ class PvpService extends BaseService
             $params['pf']             = 'wx2';
             foreach ($potions as $val) {
                 $params['id']             = $val['Goods'];
-                for($i=0;$i<$val['limit'];$i++) {
+                $num = ($val['limit'] > $val['Num']) ? $val['Num'] : $val['limit'];
+                for($i=0;$i<$num;$i++) {
                     $result = Curl::dld($url, $params);
                     if($result['code'] == 0){
                         $data = $result['data'];
                         $this->dealResult($data, $user['id']);
                         if($data['result'] == '0'){
-                            Log::dld($user['id'], "使用一个{$val['Name']}，获得 {$data['changed']['attrs'][0]['num']} 能量");
+                            Log::dld($user['id'], "使用一个{$val['Name']}，获得 {$data['changed']['attrs'][0]['num']} {$data['changed']['attrs'][0]['name']}");
                         }else{
                             break;
                         }

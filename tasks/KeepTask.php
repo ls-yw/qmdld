@@ -10,6 +10,7 @@ use Services\MasterService;
 use Services\ServantService;
 use Services\FactionService;
 use Services\QualifyingService;
+use Services\MarryHangupService;
 
 class KeepTask extends BaseTask
 {
@@ -62,8 +63,14 @@ class KeepTask extends BaseTask
         //帮派
         $this->faction($user);
         
-        //王者争霸
+        //个人王者争霸
         $this->qualifying($user);
+        
+        //团队王者争霸
+        $this->teamqua($user);
+        
+        //游历
+        $this->marryHangup($user);
         
         
         Redis::getInstance()->del($lockKey);
@@ -208,6 +215,54 @@ class KeepTask extends BaseTask
         }
     
         (new QualifyingService())->main($user);
+    
+        Redis::getInstance()->setex($key, 86400, time());
+    }
+    
+    /**
+     * 团队王者争霸    两小时执行一次
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年1月18日
+     */
+    public function teamqua($user)
+    {
+        $limitTime = 7200;
+        echo 'running teamqua'.$user['id'].PHP_EOL;
+        $key = 'teamqua_time_'.$user['id'];
+        if(Redis::getInstance()->exists($key)){
+            $prevTime = Redis::getInstance()->get($key);
+            if(time() - $prevTime <= $limitTime){
+                echo 'teamqua 未到 '.$user['id'].' 还差'.($limitTime - (time() - $prevTime)).'秒'.PHP_EOL;
+                return false;
+            }
+        }
+    
+        (new QualifyingService())->teamMain($user);
+    
+        Redis::getInstance()->setex($key, 86400, time());
+    }
+    
+    /**
+     * 游历   半小时执行一次
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年1月18日
+     */
+    public function marryHangup($user)
+    {
+        $limitTime = 1800;
+        echo 'running marryHangup'.$user['id'].PHP_EOL;
+        $key = 'marryHangup_time_'.$user['id'];
+        if(Redis::getInstance()->exists($key)){
+            $prevTime = Redis::getInstance()->get($key);
+            if(time() - $prevTime <= $limitTime){
+                echo 'marryHangup 未到 '.$user['id'].' 还差'.($limitTime - (time() - $prevTime)).'秒'.PHP_EOL;
+                return false;
+            }
+        }
+    
+        (new MarryHangupService())->main($user);
     
         Redis::getInstance()->setex($key, 86400, time());
     }

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50633
 File Encoding         : 65001
 
-Date: 2018-01-19 17:47:47
+Date: 2018-01-23 20:44:34
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -48,9 +48,9 @@ CREATE TABLE `user` (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES ('1', 'yls', '6084512', 'o8FFywJcAMLAEAo-1Xh7YkIlR0dI', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', 'd69ce2842f7ea6d231986dee4fd1e1a7', '1');
-INSERT INTO `user` VALUES ('2', 'yj', '769448', '', 'oKIwA0aGacUIRZjEHNXgzQvT65CA', 'a26eb997e435e95220ad86b62ba25ab7', '0');
-INSERT INTO `user` VALUES ('3', 'ylsxh', '636428', '', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', 'fefe48f9a5c240cd6904cc23c67d5578', '1');
+INSERT INTO `user` VALUES ('1', 'yls', '6084512', 'o8FFywJcAMLAEAo-1Xh7YkIlR0dI', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', '0e0ee562b40bccb84818c817816ed7ba', '1');
+INSERT INTO `user` VALUES ('2', 'yj', '769448', '', 'oKIwA0aGacUIRZjEHNXgzQvT65CA', '', '1');
+INSERT INTO `user` VALUES ('3', 'ylsxh', '636428', '', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', '', '1');
 
 -- ----------------------------
 -- Table structure for user_config
@@ -60,13 +60,14 @@ CREATE TABLE `user_config` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
   `meridian` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `lilian` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '历练 1要经验 2爬',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user_config
 -- ----------------------------
-INSERT INTO `user_config` VALUES ('1', '1', '1');
+INSERT INTO `user_config` VALUES ('1', '1', '1', '2');
 
 -- ----------------------------
 -- Table structure for user_info
@@ -98,11 +99,22 @@ CREATE TABLE `user_info` (
   `winpoint` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '胜点',
   `login_days` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '登录天数',
   `mentor_uid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '师傅UID',
+  `qualifying` varchar(30) NOT NULL DEFAULT '' COMMENT '排位',
+  `qualifying_num` smallint(4) unsigned NOT NULL DEFAULT '0' COMMENT '次数',
+  `teamqua` varchar(30) NOT NULL DEFAULT '' COMMENT '团队排位',
+  `teamqua_num` smallint(4) unsigned NOT NULL DEFAULT '0',
+  `lilian` varchar(10) NOT NULL DEFAULT '' COMMENT '历练',
+  `hero_lilian` varchar(10) NOT NULL DEFAULT '' COMMENT '英雄历练',
+  `tower` varchar(10) NOT NULL DEFAULT '' COMMENT '千层塔',
+  `marry_hangup` varchar(10) NOT NULL DEFAULT '' COMMENT '游历',
+  `unlock_page` varchar(10) NOT NULL DEFAULT '' COMMENT '72变',
+  `unlock_scene` varchar(10) NOT NULL DEFAULT '' COMMENT '场景解锁',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user_info
 -- ----------------------------
-INSERT INTO `user_info` VALUES ('11', '3', 'BACKPA…', '30', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '378', '3400', '0', '53', '2', '636428', '984841', '', '13769', '0', '0', '3270', '0', '700', '630', '255', '33820', '400', '9', '6084512');
-INSERT INTO `user_info` VALUES ('12', '1', 'BACKPA…', '39', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '4236', '14400', '0', '12', '1', '6084512', '984841', '', '26350', '3', '6', '41', '0', '541', '9632', '241', '128740', '600', '17', '0');
+INSERT INTO `user_info` VALUES ('11', '3', 'BACKPA…', '34', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '887', '8000', '0', '82', '2', '636428', '984841', '青天外', '16780', '0', '0', '5010', '0', '110', '12235', '15', '72880', '660', '13', '6084512', '白银斗士Ⅲ 4星', '0', '', '0', '', '', '', '', '120/120', '17/17');
+INSERT INTO `user_info` VALUES ('12', '1', 'BACKPA…', '41', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '16325', '18250', '0', '3', '1', '6084512', '984841', '青天外', '30105', '3', '6', '751', '0', '751', '6659', '244', '141280', '720', '21', '0', '铂金斗尊Ⅲ 2星', '0', '黄金斗师Ⅳ 1星', '0', '', '', '', '', '120/120', '17/17');
+INSERT INTO `user_info` VALUES ('13', '2', 'YuJun阳…', '42', 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJnv4h4j5tWy3y9l0vp2KMt96LxHbyibOWE5sdFbskDeyqOF22icC4stH2hcRichsWw5SWo0nVPTbspA/0', '3397', '20500', '0', '7', '2', '769448', '984841', '青天外', '31088', '2', '11', '1195', '0', '1586', '12159', '288', '88840', '160', '21', '0', '铂金斗尊Ⅲ 1星', '0', '', '0', '', '', '', '', '120/120', '17/17');
