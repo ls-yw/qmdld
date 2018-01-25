@@ -18,7 +18,14 @@ class LilianService extends BaseService
         }
     }
     
-    public function index($user) {
+    public function main($user)
+    {
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['lilian_used'] == 1)$this->useEnergy($user);
+        if($userConfig['lilian_ordinary'] == 1)$this->index($user, $userConfig);
+    }
+    
+    public function index($user, $userConfig) {
         //cmd=mappush&subcmd=GetUser&uid=6084512&dup=0&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=0e0ee562b40bccb84818c817816ed7ba&pf=wx2
         $url = $this->_config->dldUrl->url;
         $params = [];
@@ -40,6 +47,7 @@ class LilianService extends BaseService
                 if($data['energy'] > 0){
                     $curdup = $data['userinfo']['curdup'];
                     $curlevel = $data['userinfo']['info']['curlevel'];
+                    
                     $this->fight($user, $curdup, $curlevel);
                 }
             }
@@ -131,8 +139,18 @@ class LilianService extends BaseService
      * @param unknown $level
      * @create_time 2018年1月23日
      */
-    public function fight($user, $dup, $level)
+    public function fight($user, $curdup, $curlevel)
     {
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        $dup   = $curdup;
+        $level = $curlevel;
+        if($userConfig['lilian_ordinary_type'] == 2){
+            $dup   = ($curlevel == 1) ? $curdup -1 : $curdup;
+            $level = ($curlevel == 1) ? 15 : $curlevel - 1;
+        }elseif ($userConfig['lilian_ordinary_type'] == 3){
+            return false;
+        }
+        
         //cmd=mappush&subcmd=DoPk&uid=6084512&dup=13&level=14&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=0e0ee562b40bccb84818c817816ed7ba&pf=wx2
         $url = $this->_config->dldUrl->url;
         $params = [];
@@ -154,7 +172,7 @@ class LilianService extends BaseService
             if($data['result'] == '0'){
                 $reward = $this->getAwardsName($data['award']);
                 Log::dld($user['id'], "{$dup}-{$level} {$data['msg']}".(!empty($reward) ? '获得'.$reward : ''));
-                $this->index($user);
+                ($data['win'] == 0) ? $this->fight($user, $curdup, $curlevel) : $this->index($user,$userConfig);
             }else{
                 return false;
             }

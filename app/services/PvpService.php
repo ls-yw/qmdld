@@ -13,9 +13,10 @@ class PvpService extends BaseService
     {
         (new BasicService())->getInfo($user);
         $userInfo = (new UserInfo())->getByUserId($user['id']);
+        $userConfig = (new UserService())->getUserConfig($user['id']);
         
         //领取好友赠送体力
-        if($userInfo['vit'] < 10){
+        if($userConfig['pvp_friend_vit'] == 1 && $userInfo['vit'] < 10){
             $result = $this->getFriendList($user, 0);
             if($result['getvit'] < $result['maxvit']){
                 $this->sendFriendVit($user);
@@ -27,12 +28,13 @@ class PvpService extends BaseService
         }
         
         //自动使用体力药水
-        if($userInfo['vit'] < 10){
+        if($userConfig['pvp_potion'] == 1 && $userInfo['vit'] < 10){
             $this->usedVitPotion($user);
             (new BasicService())->getInfo($user);
             $userInfo = (new UserInfo())->getByUserId($user['id']);
         }
         
+        if($userConfig['pvp_potion'] == 0)return false;
         //优先好友战斗
         if($userInfo['vit'] < 10)return false;
         $type = 0;
@@ -242,7 +244,7 @@ class PvpService extends BaseService
                         $data = $result['data'];
                         $this->dealResult($data, $user['id']);
                         if($data['result'] == '0'){
-                            Log::dld($user['id'], "使用一个{$val['Name']}，获得 {$data['changed']['attrs'][0]['num']} {$data['changed']['attrs'][0]['name']}");
+                            Log::dld($user['id'], "使用一个{$val['Name']}，获得 {$data['changed']['attrs'][0]['num']} 能量");
                         }else{
                             break;
                         }

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50633
 File Encoding         : 65001
 
-Date: 2018-01-23 20:44:34
+Date: 2018-01-25 19:13:41
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -48,9 +48,9 @@ CREATE TABLE `user` (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES ('1', 'yls', '6084512', 'o8FFywJcAMLAEAo-1Xh7YkIlR0dI', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', '0e0ee562b40bccb84818c817816ed7ba', '1');
-INSERT INTO `user` VALUES ('2', 'yj', '769448', '', 'oKIwA0aGacUIRZjEHNXgzQvT65CA', '', '1');
-INSERT INTO `user` VALUES ('3', 'ylsxh', '636428', '', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', '', '1');
+INSERT INTO `user` VALUES ('1', 'yls', '6084512', 'o8FFywJcAMLAEAo-1Xh7YkIlR0dI', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', '', '1');
+INSERT INTO `user` VALUES ('2', 'yj', '769448', '', 'oKIwA0aGacUIRZjEHNXgzQvT65CA', 'b56609b69eb3938f7f70279b18207660', '1');
+INSERT INTO `user` VALUES ('3', 'ylsxh', '636428', '', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', 'e0f01e77802711928e1eaf1d808fab1f', '1');
 
 -- ----------------------------
 -- Table structure for user_config
@@ -59,15 +59,39 @@ DROP TABLE IF EXISTS `user_config`;
 CREATE TABLE `user_config` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `meridian` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `meridian_auto` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '经脉自动造访 0不自动 1自动',
+  `meridian_flag` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '自动使用威望旗 0不自动 1自动',
+  `meridian_reward` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '自动使用雪莲  0不自动 1自动',
   `lilian` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '历练 1要经验 2爬',
+  `pvp_auto` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '自动战斗 0不战斗 1战斗',
+  `pvp_potion` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '自动使用体力药水 0 不使用 1使用',
+  `pvp_friend_vit` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '自动赠送和领取好友体力 0 不使用 1使用',
+  `master_auto` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '自动敬茶/解惑 0 不使用 1使用',
+  `servant_auto` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '收家财 0 不使用 1使用',
+  `servant_rob` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '捣乱 0 不自动 1自动',
+  `servant_train` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '训练 0 不自动 1自动',
+  `servant_catch` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '捕捉 0 不自动 1自动',
+  `servant_release` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '释放 0 不自动 1自动',
+  `faction_auto` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '捐献 0 不使用 1使用',
+  `faction_club` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '武馆 0 不使用 1使用',
+  `qualifying_person` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '个人王者争霸赛 0 不使用 1使用',
+  `qualifying_team` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '团队王者争霸赛 0 不使用 1使用',
+  `hangup_equip` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '游历装备 0 不自动 1自动',
+  `hangup_box` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '游历使用宝箱 0 不自动 1自动',
+  `hangup_encourage` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '游历互动 0 不自动 1自动',
+  `hangup_fight` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '游历挑战 0 不自动 1自动',
+  `lilian_ordinary` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '普通历练 0 不自动 1自动',
+  `lilian_ordinary_type` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '普通历练类型 1爬楼 2经验 3满星',
+  `lilian_used` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '使用令牌礼包',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user_config
 -- ----------------------------
-INSERT INTO `user_config` VALUES ('1', '1', '1', '2');
+INSERT INTO `user_config` VALUES ('1', '1', '1', '1', '1', '1', '0', '1', '1', '1', '1', '1', '1', '1', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO `user_config` VALUES ('2', '2', '1', '1', '1', '1', '0', '1', '1', '1', '1', '1', '1', '1', '0', '1', '1', '1', '1', '1', '1', '1', '1', '0', '2', '1');
+INSERT INTO `user_config` VALUES ('3', '3', '1', '1', '1', '2', '0', '0', '0', '1', '1', '1', '1', '1', '0', '1', '1', '1', '0', '0', '0', '0', '0', '1', '1', '1');
 
 -- ----------------------------
 -- Table structure for user_info
@@ -115,6 +139,6 @@ CREATE TABLE `user_info` (
 -- ----------------------------
 -- Records of user_info
 -- ----------------------------
-INSERT INTO `user_info` VALUES ('11', '3', 'BACKPA…', '34', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '887', '8000', '0', '82', '2', '636428', '984841', '青天外', '16780', '0', '0', '5010', '0', '110', '12235', '15', '72880', '660', '13', '6084512', '白银斗士Ⅲ 4星', '0', '', '0', '', '', '', '', '120/120', '17/17');
-INSERT INTO `user_info` VALUES ('12', '1', 'BACKPA…', '41', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '16325', '18250', '0', '3', '1', '6084512', '984841', '青天外', '30105', '3', '6', '751', '0', '751', '6659', '244', '141280', '720', '21', '0', '铂金斗尊Ⅲ 2星', '0', '黄金斗师Ⅳ 1星', '0', '', '', '', '', '120/120', '17/17');
-INSERT INTO `user_info` VALUES ('13', '2', 'YuJun阳…', '42', 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJnv4h4j5tWy3y9l0vp2KMt96LxHbyibOWE5sdFbskDeyqOF22icC4stH2hcRichsWw5SWo0nVPTbspA/0', '3397', '20500', '0', '7', '2', '769448', '984841', '青天外', '31088', '2', '11', '1195', '0', '1586', '12159', '288', '88840', '160', '21', '0', '铂金斗尊Ⅲ 1星', '0', '', '0', '', '', '', '', '120/120', '17/17');
+INSERT INTO `user_info` VALUES ('11', '3', 'BACKPA…', '35', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '3572', '9050', '0', '150', '2', '636428', '984841', '青天外', '19680', '0', '0', '5210', '0', '258', '15485', '167', '127870', '780', '15', '0', '黄金斗师Ⅲ 2星', '0', '', '0', '', '', '', '', '120/120', '17/17');
+INSERT INTO `user_info` VALUES ('12', '1', 'BACKPA…', '42', 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ertuLYicnsiaekB4Libibvt2kYBKFicmOyAVQqmZUutCFnWGC0wRNMxiaQFN51icAfkZ2CAsAWR7tVsG34gA/0', '15139', '20500', '0', '4', '1', '6084512', '984841', '青天外', '31297', '3', '6', '1261', '0', '1361', '9579', '296', '91420', '600', '23', '0', '铂金斗尊Ⅱ 3星', '0', '黄金斗师Ⅲ 1星', '0', '', '', '', '', '120/120', '17/17');
+INSERT INTO `user_info` VALUES ('13', '2', 'YuJun阳…', '42', 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJnv4h4j5tWy3y9l0vp2KMt96LxHbyibOWE5sdFbskDeyqOF22icC4stH2hcRichsWw5SWo0nVPTbspA/0', '19942', '20500', '0', '9', '2', '769448', '984841', '青天外', '32362', '2', '11', '1315', '0', '1954', '13589', '43595', '61180', '160', '23', '0', '铂金斗尊Ⅲ 6星', '0', '黄金斗师Ⅲ 1星', '0', '', '', '', '', '120/120', '17/17');

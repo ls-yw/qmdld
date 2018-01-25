@@ -38,6 +38,18 @@ class UserConfig extends BaseModel
     }
     
     /**
+     * 新增数据
+     * @param array $data
+     * @return $row  新增数据的ID
+     */
+    public function insertData($data) {
+        $data = $this->dealInsertData($data);
+        $sql = "INSERT INTO user_config ".$data['val'];
+        $row = $this->execute($sql, $data['params']);
+        return $row;
+    }
+    
+    /**
      * 更新数据
      * @param array $data   更新的数据
      * @param array $where  更新条件

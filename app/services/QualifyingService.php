@@ -15,6 +15,8 @@ class QualifyingService extends BaseService
      */
     public function main($user)
     {
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['qualifying_person'] == 0)return false;
         $this->index($user);
         $this->getRank($user);
     }
@@ -26,6 +28,8 @@ class QualifyingService extends BaseService
      */
     public function teamMain($user)
     {
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['qualifying_team'] == 0)return false;
         $this->teamIndex($user);
         $this->getTeamRank($user);
     }

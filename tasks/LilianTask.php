@@ -17,11 +17,11 @@ class LilianTask extends BaseTask
            echo date('Y-m-d H:i:s')."\t{$lockKey} 程序已被锁住".PHP_EOL;
            exit;
        }
-       Redis::getInstance()->setex($lockKey, 60 , 'lock');
+       Redis::getInstance()->setex($lockKey, 86400 , 'lock');
        
        $user = (new User())->getById($userId);
        
-       (new LilianService())->index($user);
+       (new LilianService())->main($user);
        
        Redis::getInstance()->del($lockKey);
     }

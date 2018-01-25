@@ -13,7 +13,8 @@ class MasterService extends BaseService
      * @create_time 2018年1月18日
      */
     public function main($user) {
-        $this->index($user);
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['master_auto'] == 1)$this->index($user);
     }
     
     /**

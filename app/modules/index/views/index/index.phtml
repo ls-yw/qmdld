@@ -85,18 +85,122 @@
 			</div>
 		</div>
 		<div class="row border-bottom config">
-			<div class="col-md-12">
-			 <label class="checkbox-inline">
-              <input type="checkbox" id="inlineCheckbox1" value="option1"> 1
-            </label>
-            <label class="checkbox-inline">
-              <input type="checkbox" id="inlineCheckbox2" value="option2"> 2
-            </label>
-            <label class="checkbox-inline">
-              <input type="checkbox" id="inlineCheckbox3" value="option3"> 3
-            </label>
-			</div>
-			<div class="col-md-12 text-center"><button type="button" class="btn btn-primary">保存</button></div>
+		<form id="configForm">
+		  <table>
+		      <tr>
+		          <th width="100">PVP</th>
+		          <td>
+		              <label class="checkbox-inline">
+                          <input type="checkbox" id="pvp_friend_vit" name="pvp_friend_vit" class="pvp_friend_vit" value="1"> 自动战斗
+                        </label>
+                        <label class="checkbox-inline">
+                          <input type="checkbox" id="pvp_potion" name="pvp_potion" class="pvp_potion" value="1"> 使用体力药水
+                        </label>
+                        <label class="checkbox-inline">
+                          <input type="checkbox" id="pvp_friend_vit" name="pvp_friend_vit" class="pvp_friend_vit" value="1"> 赠送领取好友体力
+                        </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>经脉</th>
+		          <td>
+		              <label class="checkbox-inline">
+                      <input type="checkbox" id="meridian_auto" name="meridian_auto" class="meridian_auto" value="1"> 自动造访
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="meridian_flag" name="meridian_flag" class="meridian_flag" value="1"> 使用威望旗
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="meridian_reward" name="meridian_reward" class="meridian_reward" value="1"> 使用雪莲
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>师徒</th>
+		          <td>
+		              <label class="checkbox-inline">
+                          <input type="checkbox" id="master_auto" name="master_auto" class="master_auto" value="1"> 敬茶/解惑
+                        </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>家丁</th>
+		          <td>
+		              <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_auto" name="servant_auto" class="servant_auto" value="1"> 收家财
+                      </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_catch" name="servant_catch" class="servant_catch" value="1"> 捕捉
+                      </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_train" name="servant_train" class="servant_train" value="1"> 训练
+                      </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_rob" name="servant_rob" class="servant_rob" value="1"> 捣乱
+                      </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>帮派</th>
+		          <td>
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="faction_auto" name="faction_auto" class="faction_auto" value="1"> 捐献
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="faction_club" name="faction_club" class="faction_club" value="1"> 武馆
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>王者争霸</th>
+		          <td>
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="qualifying_person" name="qualifying_person" class="qualifying_person" value="1"> 个人
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="qualifying_team" name="qualifying_team" class="qualifying_team" value="1"> 团队
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>游历</th>
+		          <td>
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_equip" name="hangup_equip" class="hangup_equip" value="1"> 熔炼装备
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_box" name="hangup_box" class="hangup_box" value="1"> 解锁宝箱
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_encourage" name="hangup_encourage" class="hangup_encourage" value="1"> 互动
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_fight" name="hangup_fight" class="hangup_fight" value="1"> 挑战
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>历练</th>
+		          <td class="form-inline">
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="lilian_ordinary" name="lilian_ordinary" class="lilian_ordinary" value="1"> 普通历练
+                    </label>
+                    <div class="form-group">
+                        <select class="form-control" name="lilian_ordinary_type" class="lilian_ordinary_type" id="lilian_ordinary_type">
+                          <option value="1">爬楼</option>
+                          <option value="2">经验</option>
+                          <option value="3">满星</option>
+                        </select>
+                    </div>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="lilian_used" name="lilian_used" class="lilian_used" value="1"> 使用令牌
+                    </label>
+		          </td>
+		      <tr>
+		  </table>
+            
+			<div class="col-md-12 text-center"><button type="button" class="btn btn-primary submitConfig">保存</button></div>
+		</form>
 		</div>
 		<div class="row">
 			<div class="logs">日志</div>

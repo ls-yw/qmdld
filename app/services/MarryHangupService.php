@@ -10,10 +10,19 @@ class MarryHangupService extends BaseService
     
     public function main($user)
     {
-        $this->index($user, true);
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        $arr = $this->index($user, $userConfig);
+        if($arr && $arr['encourage'] == 0 && $userConfig['hangup_encourage'] == 1)$this->encourage($user);
+        if($arr && $arr['fight'] < $arr['maxfight'] && $userConfig['hangup_fight'] == 1){
+            Log::dld($user['id'], '开始挑战仙缘历练');
+            for($i=$arr['fight'];$i<$arr['maxfight'];$i++){
+                $this->fight($user);
+            }
+        }
+        if($userConfig['hangup_equip'] == 1)$this->getBag($user);
     }
     
-    public function index($user, $autoFight=false) {
+    public function index($user, $userConfig) {
         //cmd=marry_hangup&op=query&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=74c930322d4f66819dd0800940743c24&pf=wx2;
         $url = $this->_config->dldUrl->url;
         $params = [];
@@ -31,29 +40,33 @@ class MarryHangupService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                Log::dld($user['id'], "获得仙缘 x {$data['account']['point_award']}，装备 x ".count($data['account']['equip_award'])."，宝箱 x ".count($data['account']['box_award']));
-                if(count($data['slots']) > 0){  //背包
-                    $this->getBag($user);
-                }
-                if(count($data['selfbox']) > 0){  //我的宝箱
+                if(isset($data['account']))Log::dld($user['id'], "获得仙缘 x {$data['account']['point_award']}，装备 x ".count($data['account']['equip_award'])."，宝箱 x ".count($data['account']['box_award']));
+                if(count($data['selfbox']) > 0 && $userConfig['hangup_box'] == 1){  //我的宝箱
                     foreach ($data['selfbox'] as $val){
                         if($val['locked'] == 0)$this->getBox($user, $val['idx'], 0);
                     }
                 }
-                if(count($data['oppbox']) > 0){  //对方的宝箱
-                    if($val['locked'] == 1)$this->getBox($user, $val['idx'], 1);
-                }
-                if($data['encourage'] == 0){
-                    
-                }
-                if($data['fight'] < $data['maxfight'] && $autoFight){
-                    Log::dld($user['id'], '开始挑战仙缘历练');
-                    for($i=$data['fight'];$i<$data['maxfight'];$i++){
-                        $this->fight($user);
+                if(count($data['oppbox']) > 0 && $userConfig['hangup_box'] == 1){  //对方的宝箱
+                    foreach ($data['oppbox'] as $v){
+                        if($v['locked'] == 1)$this->getBox($user, $v['idx'], 1);
                     }
                 }
+                $res = [];
+                $res['encourage'] = $data['encourage'];
+                $res['fight']     = $data['fight'];
+                $res['maxfight']  = $data['maxfight'];
+//                 if($data['encourage'] == 0){
+//                     $this->encourage($user);
+//                 }
+//                 if($data['fight'] < $data['maxfight'] && $autoFight){
+//                     Log::dld($user['id'], '开始挑战仙缘历练');
+//                     for($i=$data['fight'];$i<$data['maxfight'];$i++){
+//                         $this->fight($user);
+//                     }
+//                 }
+                return $res;
             }
-            return true;
+            return false;
         }
     }
     
@@ -81,25 +94,7 @@ class MarryHangupService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                $i = 0;
-                foreach ($data['bag'] as $val){
-                    if($val['cansend'] == 0 && $val['canequip'] == 0){
-                        $i = $val['grid_id'];
-                    }
-                }
-                while ($i && $i >0){
-                    $bags = $this->ronglian($user, $i);
-                    if($bags){
-                        foreach ($bags as $v){
-                            if($v['cansend'] == 0 && $v['canequip'] == 0){
-                                $i = $v['grid_id'];
-                                break;
-                            }
-                        }
-                    }else{
-                        $i = 0;
-                    }
-                }
+                if(count($data['bag']) > 0)$this->_dealEquip($user, $data['bag']);
             }
             return true;
         }
@@ -230,6 +225,98 @@ class MarryHangupService extends BaseService
                 Log::dld($user['id'], $data['msg']);
             }
             return true;
+        }
+    }
+    
+    /**
+     * 换装
+     * @param unknown $user
+     * @param unknown $idx
+     * @create_time 2018年1月24日
+     */
+    public function toslot($user, $idx) {
+        //cmd=marry_hangup&op=toslot&grid_id=2&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=615ae395d1b6cdf762d6d8233d001b7e&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'marry_hangup';
+        $params['op']             = 'toslot';
+        $params['grid_id']        = $idx;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], $data['msg']);
+                return $data['bag'];
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * 赠送
+     * @param unknown $user
+     * @param unknown $idx
+     * @return Ambigous <>|boolean
+     * @create_time 2018年1月24日
+     */
+    public function send($user, $idx) {
+        //cmd=marry_hangup&op=send&grid_id=1&uid=769448&uin=null&skey=null&h5openid=oKIwA0aGacUIRZjEHNXgzQvT65CA&h5token=4d8d1ae5c30083b8f0cbc6f61f797545&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'marry_hangup';
+        $params['op']             = 'send';
+        $params['grid_id']        = $idx;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+    
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], '装备赠送成功');
+                return $data['bag'];
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * 处理装备
+     * @param unknown $user
+     * @param unknown $bag
+     * @create_time 2018年1月24日
+     */
+    private function _dealEquip($user, $bag) {
+        $newBag = [];
+        $arr1 = current($bag);
+        if($arr1['cansend'] == 0 && $arr1['canequip'] == 0){
+            $newBag = $this->ronglian($user, $arr1['grid_id']);
+            if(count($newBag) > 0)$this->_dealEquip($user, $newBag);
+        }elseif ($arr1['canequip'] == 1){
+            $newBag = $this->toslot($user, $arr1['grid_id']);
+            if(count($newBag) > 0)$this->_dealEquip($user, $newBag);
+        }elseif ($arr1['cansend'] == 1){
+            $newBag = $this->send($user, $arr1['grid_id']);
+            if(count($newBag) > 0)$this->_dealEquip($user, $newBag);
         }
     }
 }

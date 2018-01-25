@@ -131,18 +131,21 @@ class MeridianService extends BaseService
      * @create_time 2018年1月16日
      */
     public function main($user) {
-        $this->usedFlag($user);
-        $info = $this->getIndex($user);
-        if($info['prestige'] < 300){
-            Log::dld($user['id'], $info['prestige']." 威望，小于300，不造访");
-            return false;
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['meridian_flag'] == 1)$this->usedFlag($user);
+        if($userConfig['meridian_auto'] == 1){
+            $info = $this->getIndex($user);
+            if($info['prestige'] < 300){
+                Log::dld($user['id'], $info['prestige']." 威望，小于300，不造访");
+                return false;
+            }
+            
+            while ($info && $info['prestige'] >= 300) {
+                $info = $this->meridian($user, $info['act_npc'], $userConfig);
+            }
+            (new UserInfo())->updateData(['prestige'=>$info['prestige'], 'spirit'=>$info['spirit']], ['user_id'=>$user['id']]);
+            Log::dld($user['id'], '剩余'. $info['prestige']." 威望，小于300，不造访");
         }
-        
-        while ($info && $info['prestige'] >= 300) {
-            $info = $this->meridian($user, $info['act_npc']);
-        }
-        (new UserInfo())->updateData(['prestige'=>$info['prestige'], 'spirit'=>$info['spirit']], ['user_id'=>$user['id']]);
-        Log::dld($user['id'], '剩余'. $info['prestige']." 威望，小于300，不造访");
         return false;
     }
     
@@ -152,7 +155,7 @@ class MeridianService extends BaseService
      * @param unknown $id
      * @create_time 2018年1月16日
      */
-    public function meridian($user, $id)
+    public function meridian($user, $id, $userConfig)
     {
         //cmd=meridian&op=visit&id=4&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=71649f42d57e00887d61d8a053b3ca9a&pf=wx2
         //{"act_npc":1,"spirit":2170,"prestige":3757,"awards":[],"npcid":4,"auto":0,"line1":"(10倍)修为+300","line2":"","msg":"","strong":0,"award_max":143,"result":0,"changed":{"attrs":[{"id":"kPrestige","num":-180},{"id":"kSpirit","num":300}]},"rodinfo":[{"name":"kRedDotTask","flag":1}]}
@@ -175,7 +178,7 @@ class MeridianService extends BaseService
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
                 Log::dld($user['id'], $data['line1'].' '.$data['line2']." 剩余威望：{$data['prestige']}");
-                if(count($data['awards']) > 0)$this->usedAwards($user, $data['awards']);
+                if($userConfig['meridian_reward'] == 1 && count($data['awards']) > 0)$this->usedAwards($user, $data['awards']);
                 $res = ['prestige'=>$data['prestige'], 'act_npc'=>$data['act_npc'], 'spirit'=>$data['spirit']];
                 return $res;
             }else{
