@@ -22,16 +22,22 @@ class LilianService extends BaseService
     {
         $userConfig = (new UserService())->getUserConfig($user['id']);
         if($userConfig['lilian_used'] == 1)$this->useEnergy($user);
-        if($userConfig['lilian_ordinary'] == 1)$this->index($user, $userConfig);
+        if($userConfig['lilian_ordinary'] == 1){
+            if($userConfig['lilian_ordinary_type'] == 3){
+//                 $this->index($user, $userConfig, 1);
+            }else{
+                $this->index($user, $userConfig);
+            }
+        }
     }
     
-    public function index($user, $userConfig) {
+    public function index($user, $userConfig, $dup=0) {
         //cmd=mappush&subcmd=GetUser&uid=6084512&dup=0&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=0e0ee562b40bccb84818c817816ed7ba&pf=wx2
         $url = $this->_config->dldUrl->url;
         $params = [];
         $params['cmd']            = 'mappush';
         $params['subcmd']         = 'GetUser';
-        $params['dup']            = 0;
+        $params['dup']            = $dup;
         $params['uid']            = $user['uid'];
         $params['uin']            = null;
         $params['skey']           = null;
@@ -48,7 +54,21 @@ class LilianService extends BaseService
                     $curdup = $data['userinfo']['curdup'];
                     $curlevel = $data['userinfo']['info']['curlevel'];
                     
-                    $this->fight($user, $curdup, $curlevel);
+                    foreach ($data['userinfo']['info']['giftstatus'] as $k => $v){
+                        if($v == 1)$this->getFullStarReward($user, $data['userinfo']['thisdup'], ($k+1));
+                    }
+                    
+                    if($userConfig['lilian_ordinary_type'] == 3){
+                        foreach ($data['userinfo']['info']['levelmap'] as $val){
+                            if($val['star'] > 0 && $val['star'] < 3){
+                                $this->fight($user, $curdup, $curlevel);
+                                return true;
+                            }
+                        }
+                        if($data['userinfo']['thisdup'] < $data['userinfo']['curdup'])$this->index($user, $userConfig, ($dup+1));
+                    }else{
+                        $this->fight($user, $curdup, $curlevel);
+                    }
                 }
             }
             return true;
@@ -147,8 +167,6 @@ class LilianService extends BaseService
         if($userConfig['lilian_ordinary_type'] == 2){
             $dup   = ($curlevel == 1) ? $curdup -1 : $curdup;
             $level = ($curlevel == 1) ? 15 : $curlevel - 1;
-        }elseif ($userConfig['lilian_ordinary_type'] == 3){
-            return false;
         }
         
         //cmd=mappush&subcmd=DoPk&uid=6084512&dup=13&level=14&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=0e0ee562b40bccb84818c817816ed7ba&pf=wx2
@@ -172,12 +190,99 @@ class LilianService extends BaseService
             if($data['result'] == '0'){
                 $reward = $this->getAwardsName($data['award']);
                 Log::dld($user['id'], "{$dup}-{$level} {$data['msg']}".(!empty($reward) ? '获得'.$reward : ''));
-                ($data['win'] == 0) ? $this->fight($user, $curdup, $curlevel) : $this->index($user,$userConfig);
+                ($data['win'] == 0) ? $this->fight($user, $curdup, $curlevel) : $this->index($user,$userConfig, $dup);
             }else{
                 return false;
             }
         }else{
             return false;
+        }
+    }
+    
+    /**
+     * 领取满星奖励
+     * @param unknown $user
+     * @param unknown $dup
+     * @param unknown $star
+     * @return boolean
+     * @create_time 2018年1月29日
+     */
+    public function getFullStarReward($user, $dup, $star) {
+        //cmd=mappush&subcmd=GetPrize&uid=636428&star=1&dup=11&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=9324e3cfa02b162af01ad1a4de3c5c8f&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'mappush';
+        $params['subcmd']         = 'GetPrize';
+        $params['dup']            = $dup;
+        $params['star']           = $star;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], "历练领取 {$dup}关第{$star}个礼包： {$data['msg']}");
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+    
+    public function heroMain($user) {
+        $this->heroIndex($user);
+    }
+    
+    public function heroIndex($user, $userConfig, $dup=10000) {
+        //cmd=mappush&subcmd=GetUser&uid=6084512&dup=10000&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=702945682f01b9a2043ec4cd70bdcd0c&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'mappush';
+        $params['subcmd']         = 'GetUser';
+        $params['dup']            = $dup;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+    
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                if($data['energy'] > 0){
+                    $curdup = $data['userinfo']['curdup'];
+                    $curlevel = $data['userinfo']['info']['curlevel'];
+    
+                    foreach ($data['userinfo']['info']['giftstatus'] as $k => $v){
+                        if($v == 1)$this->getFullStarReward($user, $data['userinfo']['thisdup'], ($k+1));
+                    }
+    
+                    if($userConfig['lilian_hero_ordinary_type'] == 3){
+                        foreach ($data['userinfo']['info']['levelmap'] as $val){
+                            if($val['star'] > 0 && $val['star'] < 3){
+                                $this->fight($user, $curdup, $curlevel);
+                                return true;
+                            }
+                        }
+                        if($data['userinfo']['thisdup'] < $data['userinfo']['curdup'])$this->index($user, $userConfig, ($dup+1));
+                    }elseif($userConfig['lilian_hero_ordinary_type'] == 2){
+                        
+                    }else{
+                        $this->fight($user, $curdup, $curlevel);
+                    }
+                }
+            }
+            return true;
         }
     }
 }

@@ -15,6 +15,8 @@ class PvpService extends BaseService
         $userInfo = (new UserInfo())->getByUserId($user['id']);
         $userConfig = (new UserService())->getUserConfig($user['id']);
         
+        if(!empty($userConfig['pvp_shop']))$this->bugGoods($user, $userConfig['pvp_shop']);
+        
         //领取好友赠送体力
         if($userConfig['pvp_friend_vit'] == 1 && $userInfo['vit'] < 10){
             $result = $this->getFriendList($user, 0);
@@ -41,7 +43,7 @@ class PvpService extends BaseService
         $result = $this->getFriendList($user, $type);
         if($result){
             foreach ($result['friendlist'] as $val) {
-                if(abs($val['level']  - $userInfo['lvl']) > 6)continue;  //等级相差十五级，跳过
+                if(abs($val['level']  - $userInfo['lvl']) > 5)continue;  //等级相差十五级，跳过
                 if($userInfo['attack_power'] - $val['power'] < 2000)continue;  //战斗力不高于2000，则跳过
                 if($val['can_fight'] != 1)continue;  //已战斗过，则跳过
             
@@ -57,7 +59,7 @@ class PvpService extends BaseService
         $result = $this->getFriendList($user, $type);
         if($result){
             foreach ($result['friendlist'] as $val) {
-                if(abs($val['level']  - $userInfo['lvl']) > 6)continue;  //等级相差十级，跳过
+                if(abs($val['level']  - $userInfo['lvl']) > 5)continue;  //等级相差十级，跳过
                 if($userInfo['attack_power'] - $val['power'] < 2000)continue;  //战斗力不高于2000，则跳过
                 if($val['can_fight'] != 1)continue;  //不能战斗，则跳过
             
@@ -75,7 +77,7 @@ class PvpService extends BaseService
             $result = $this->getFriendList($user, $type);
             if($result){
                 foreach ($result['friendlist'] as $val) {
-                    if(abs($val['level']  - $userInfo['lvl']) > 6)continue;  //等级相差十级，跳过
+                    if(abs($val['level']  - $userInfo['lvl']) > 5)continue;  //等级相差十级，跳过
                     if($userInfo['attack_power'] - $val['power'] < 2000)continue;  //战斗力不高于2000，则跳过
                     if($val['can_fight'] != 1)continue;  //不能战斗，则跳过
                 
@@ -354,6 +356,71 @@ class PvpService extends BaseService
                 return true;
             }else{
                 Log::dld($user['id'], "一键领取体力失败：{$data['msg']}");
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+    
+    public function bugGoods($user, $goods) {
+        $shop = (new GoodsService())->pvp($user);
+        $goods = explode(',', $goods);
+        $prevNum = 0;
+        foreach ($goods as $val){
+            foreach($shop['goods'] as $v){
+                if($val == $v['id']){
+                    if($v['remain'] > 0 && $prevNum == 0){
+                        $num = 0;
+                        for ($i=1;$i<=$v['remain'];$i++){
+                            if($v['price'] * $i <= $shop['winpoint'])$num = $i;
+                        }
+                        if($num == 0)return false;
+                        $res = $this->bug($user, $val, $num, $v['price']*$num);
+                        $prevNum = $res ? $v['remain'] - $num : $v['remain'];
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    /**
+     * 购买
+     * @param unknown $user
+     * @param unknown $id
+     * @param unknown $num
+     * @param unknown $prize
+     * @create_time 2018年1月26日
+     */
+    public function bug($user, $id, $num, $prize) {
+        //cmd=shop&subtype=1&num=1&id=100023&price=20&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=dd63c541dc64fc41a05909a0466d753f&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'shop';
+        $params['subtype']        = 1;
+        $params['num']            = $num;
+        $params['id']             = $id;
+        $params['price']          = $prize;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                unset($data['changed']['attrs']);
+                $awards = $this->getAwardsName($data['changed']);
+                Log::dld($user['id'], "胜点商店购买了 {$awards}");
+                return true;
+            }else{
+                Log::dld($user['id'], $data['msg']);
                 return false;
             }
         }else{

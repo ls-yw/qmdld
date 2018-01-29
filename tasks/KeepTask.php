@@ -83,7 +83,7 @@ class KeepTask extends BaseTask
      */
     public function meridian($user)
     {
-        $limitTime = 7200;
+        $limitTime = 1800;
         echo 'running meridian '.$user['id'].PHP_EOL;
         $key = 'meridian_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){
@@ -107,7 +107,7 @@ class KeepTask extends BaseTask
      */
     public function pvp($user)
     {
-        $limitTime = 1800;
+        $limitTime = 800;
         echo 'running pvp '.$user['id'].PHP_EOL;
         $key = 'pvp_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){
@@ -131,7 +131,7 @@ class KeepTask extends BaseTask
      */
     public function master($user) 
     {
-        $limitTime = 7200;
+        $limitTime = 1800;
         echo 'running master '.$user['id'].PHP_EOL;
         $key = 'master_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){
@@ -179,7 +179,7 @@ class KeepTask extends BaseTask
      */
     public function faction($user) 
     {
-        $limitTime = 7200;
+        $limitTime = 1800;
         echo 'running faction'.$user['id'].PHP_EOL;
         $key = 'faction_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){
@@ -203,7 +203,7 @@ class KeepTask extends BaseTask
      */
     public function qualifying($user) 
     {
-        $limitTime = 7200;
+        $limitTime = 1800;
         echo 'running qualifying'.$user['id'].PHP_EOL;
         $key = 'qualifying_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){
@@ -227,7 +227,7 @@ class KeepTask extends BaseTask
      */
     public function teamqua($user)
     {
-        $limitTime = 7200;
+        $limitTime = 1800;
         echo 'running teamqua'.$user['id'].PHP_EOL;
         $key = 'teamqua_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){

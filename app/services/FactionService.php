@@ -11,6 +11,8 @@ class FactionService extends BaseService
     
     public function main($user)
     {
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['faction_club'] == 1)$this->getclub($user);
         $this->index($user);
     }
     
@@ -45,7 +47,7 @@ class FactionService extends BaseService
                     if($val['id'] == 1){  //捐献
                         $this->donation($user);
                     }elseif($val['id'] == 2){  //武馆
-                        $this->getclub($user);
+//                         $this->getclub($user);
                     }elseif($val['id'] == 3){  //洞穴
                         
                     }
@@ -79,17 +81,18 @@ class FactionService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                $num = $data['fight_maxcount'] - $data['fight_count'];
-                if($num <= 0)return false;
                 $exp = 0;
                 $club_type = 0;
-                $j = 1;
+                $j = 0;
                 foreach ($data['club'] as $val) {
-                    if($exp == 0 || $exp >= $val['exp'])$toId = $j;
+                    if($exp == 0 || $exp >= $val['exp'])$club_type = $j;
+                    if($val['lvl'] > $val['skill']['level'])$this->clubupskill($user, $club_type);
                     $j++;
                 }
+                $num = $data['fight_maxcount'] - $data['fight_count'];
+                if($num <= 0)return false;
                 for($i=0;$i<$num;$i++){
-                    $this->clubfight($user, 1);
+                    $this->clubfight($user, $club_type);
                 }
             }
             return true;
@@ -167,6 +170,37 @@ class FactionService extends BaseService
                     }
                 }
                 Log::dld($user['id'], '帮派普通捐赠：'.$awards.' 繁荣度 +'.$data['glory']);
+            }
+            return true;
+        }
+    }
+    
+    /**
+     * 学习技能
+     * @param unknown $user
+     * @param unknown $idx
+     * @create_time 2018年1月26日
+     */
+    public function clubupskill($user, $idx) {
+        //cmd=faction&op=clubupskill&club_type=2&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=98a6a4dd4d405538b55da1156dedc53d&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'faction';
+        $params['op']             = 'clubupskill';
+        $params['club_type']      = $idx;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], '学习技能成功');
             }
             return true;
         }

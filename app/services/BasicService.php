@@ -101,6 +101,7 @@ class BasicService extends BaseService
                     $userInfoData['user_id']      = $user['id'];
                     $row = (new UserInfo())->insertData($userInfoData);
                 }
+                (new GoodsService())->updateGoods($user);
                 $row ? Log::dld($user['id'], '更新用户信息成功') : Log::dld($user['id'], '更新用户信息失败');
                 return true;
             }

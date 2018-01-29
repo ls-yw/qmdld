@@ -5,6 +5,7 @@ use Basic\BaseController;
 use Models\UserConfig;
 use Services\UserService;
 use Library\Redis;
+use Models\Shops;
 
 class UserController extends BaseController{
 
@@ -23,6 +24,7 @@ class UserController extends BaseController{
         $data['servant_catch']             = (int)$this->request->getPost('servant_catch', 'int', 0);
         $data['servant_train']             = (int)$this->request->getPost('servant_train', 'int', 0);
         $data['servant_rob']               = (int)$this->request->getPost('servant_rob', 'int', 0);
+        $data['servant_release']           = (int)$this->request->getPost('servant_release', 'int', 0);
         $data['faction_auto']              = (int)$this->request->getPost('faction_auto', 'int', 0);
         $data['faction_club']              = (int)$this->request->getPost('faction_club', 'int', 0);
         $data['qualifying_person']         = (int)$this->request->getPost('qualifying_person', 'int', 0);
@@ -34,6 +36,14 @@ class UserController extends BaseController{
         $data['lilian_ordinary']           = (int)$this->request->getPost('lilian_ordinary', 'int', 0);
         $data['lilian_ordinary_type']      = (int)$this->request->getPost('lilian_ordinary_type', 'int', 1);
         $data['lilian_used']               = (int)$this->request->getPost('lilian_used', 'int', 0);
+        
+        //商店保存
+        $pvpShop         = $this->request->getPost('pvp_shop');
+        $servantShop     = $this->request->getPost('servant_shop');
+        $qualifyingShop  = $this->request->getPost('qualifying_shop');
+        $data['pvp_shop']                = !empty($pvpShop) ? implode(',', $pvpShop) : '';
+        $data['servant_shop']            = !empty($servantShop) ? implode(',', $servantShop) : '';
+        $data['qualifying_shop']         = !empty($qualifyingShop) ? implode(',', $qualifyingShop) : '';
         
         $userConfig = (new UserService())->getUserConfig($userId);
         if($userConfig){
@@ -58,5 +68,17 @@ class UserController extends BaseController{
         $userConfig = (new UserService())->getUserConfig($this->_user['id']);
         
         return $this->ajaxReturn($userConfig, 0, '成功');
+    }
+    
+    public function shopAction() {
+        $shops = (new Shops())->getList('1=1');
+        $list = [];
+        foreach ($shops as $key => $val){
+            $goods = json_decode($val['goods'], true);
+            foreach ($goods as $v) {
+                $list[$val['mark']][$v['id']] = $v['name'];
+            }
+        }
+        return $this->ajaxReturn($list, 0, '成功');
     }
 }

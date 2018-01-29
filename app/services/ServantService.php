@@ -12,6 +12,7 @@ class ServantService extends BaseService
     public function main($user)
     {
         $userConfig = (new UserService())->getUserConfig($user['id']);
+        if(!empty($userConfig['servant_shop']))$this->bugGoods($user, $userConfig['servant_shop']);
         $this->index($user, $userConfig);
     }
     
@@ -57,6 +58,9 @@ class ServantService extends BaseService
                     }
                     if($userConfig['servant_train'] == 1 && $data['exp_train_got'] < $data['exp_train_max']){  //训练
                         $this->train($user);
+                    }
+                    if(($data['level'] - $val['level']) > 5 && $userConfig['servant_release'] == 1 ){
+//                         $this->release($user, $val);
                     }
                 }
                 if($data['owner_uid'] > 0){
@@ -105,7 +109,7 @@ class ServantService extends BaseService
      * @param unknown $idx
      * @create_time 2018年1月25日
      */
-    public function release($user, $idx) {
+    public function release($user, $servant) {
         ;
     }
     
@@ -326,6 +330,71 @@ class ServantService extends BaseService
                     $this->rob($user, $servant);
                 }
             }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+    
+    public function bugGoods($user, $goods) {
+        $shop = (new GoodsService())->servant($user);
+        $goods = explode(',', $goods);
+        $prevNum = 0;
+        foreach ($goods as $val){
+            foreach($shop['goods'] as $v){
+                if($val == $v['id']){
+                    if($v['remain'] > 0 && $prevNum == 0){
+                        $num = 0;
+                        for ($i=1;$i<=$v['remain'];$i++){
+                            if($v['price'] * $i <= $shop['servant_cash'])$num = $i;
+                        }
+                        if($num == 0)return false;
+                        $res = $this->bug($user, $val, $num, $v['price']*$num);
+                        $prevNum = $res ? $v['remain'] - $num : $v['remain'];
+                    }
+                }
+            }
+        }
+    
+    }
+    
+    /**
+     * 购买
+     * @param unknown $user
+     * @param unknown $id
+     * @param unknown $num
+     * @param unknown $prize
+     * @create_time 2018年1月26日
+     */
+    public function bug($user, $id, $num, $prize) {
+        //cmd=shop&subtype=1&num=1&id=100023&price=20&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=dd63c541dc64fc41a05909a0466d753f&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'shop';
+        $params['subtype']        = 1;
+        $params['num']            = $num;
+        $params['id']             = $id;
+        $params['price']          = $prize;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+    
+        $result = Curl::dld($url, $params);
+    
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                unset($data['changed']['attrs']);
+                $awards = $this->getAwardsName($data['changed']);
+                Log::dld($user['id'], "家财商店购买了 {$awards}");
+                return true;
+            }else{
+                Log::dld($user['id'], $data['msg']);
                 return false;
             }
         }else{

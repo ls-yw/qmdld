@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <link href="/plugins/bootstrap/bootstrap.min.css" rel="stylesheet">
-<link href="/static/css/base.css?v=<?php echo time();?>" rel="stylesheet">
+<link href="/static/css/base.css" rel="stylesheet">
+<link href="/plugins/chosen/chosen.css" rel="stylesheet">
 <script src="/static/js/jquery.min.js"></script>
 </head>
 <body id="main">
@@ -138,6 +139,9 @@
                       <label class="checkbox-inline">
                         <input type="checkbox" id="servant_rob" name="servant_rob" class="servant_rob" value="1"> 捣乱
                       </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_release" name="servant_release" class="servant_release" value="1"> 释放
+                      </label>
 		          </td>
 		      <tr>
 		      <tr>
@@ -186,7 +190,7 @@
                       <input type="checkbox" id="lilian_ordinary" name="lilian_ordinary" class="lilian_ordinary" value="1"> 普通历练
                     </label>
                     <div class="form-group">
-                        <select class="form-control" name="lilian_ordinary_type" class="lilian_ordinary_type" id="lilian_ordinary_type">
+                        <select class="form-control lilian_ordinary_type" name="lilian_ordinary_type" id="lilian_ordinary_type">
                           <option value="1">爬楼</option>
                           <option value="2">经验</option>
                           <option value="3">满星</option>
@@ -198,7 +202,26 @@
 		          </td>
 		      <tr>
 		  </table>
-            
+            <table width="100%">
+                <tr>
+		          <th width="100">胜点商店</th>
+		          <td class="form-inline">
+		             <select class="pvp_shop chosen" id="pvp_shop" name="pvp_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th width="100">家财商店</th>
+		          <td class="form-inline">
+		             <select class="servant_shop chosen" id="servant_shop" name="servant_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th width="100">王者商店</th>
+		          <td class="form-inline">
+		             <select class="qualifying_shop chosen" id="qualifying_shop" name="qualifying_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+            </table>
 			<div class="col-md-12 text-center"><button type="button" class="btn btn-primary submitConfig">保存</button></div>
 		</form>
 		</div>
@@ -206,7 +229,10 @@
 			<div class="logs">日志</div>
 		</div>
 	</div>
+<script type="text/javascript" src="/plugins/chosen/chosen.jquery.js"></script>
 <script src="/static/js/common.js"></script>
 <script src="/static/js/index.js"></script>
+<script type="text/javascript">
+</script>
 </body>
 </html>
