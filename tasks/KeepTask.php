@@ -11,6 +11,7 @@ use Services\ServantService;
 use Services\FactionService;
 use Services\QualifyingService;
 use Services\MarryHangupService;
+use Services\TowerService;
 
 class KeepTask extends BaseTask
 {
@@ -72,6 +73,11 @@ class KeepTask extends BaseTask
         //游历
         $this->marryHangup($user);
         
+        //武林大会
+        $this->wulin($user);
+        
+        //千层塔
+        $this->tower($user);
         
         Redis::getInstance()->del($lockKey);
     }
@@ -263,6 +269,38 @@ class KeepTask extends BaseTask
         }
     
         (new MarryHangupService())->main($user);
+    
+        Redis::getInstance()->setex($key, 86400, time());
+    }
+    
+    public function wulin($user) {
+        $key = 'wulin_sign_'.date('Ymd').'_'.$user['id'];
+        $nowTime = date('H');
+        if($nowTime >= 12 && $nowTime <= 14 && !Redis::getInstance()->exists($key)){
+            (new BasicService())->wulin($user);
+        }
+    }
+    
+    /**
+     * 千层塔   俩小时执行一次
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年1月18日
+     */
+    public function tower($user)
+    {
+        $limitTime = 7200;
+        echo 'running tower'.$user['id'].PHP_EOL;
+        $key = 'tower_time_'.$user['id'];
+        if(Redis::getInstance()->exists($key)){
+            $prevTime = Redis::getInstance()->get($key);
+            if(time() - $prevTime <= $limitTime){
+                echo 'tower 未到 '.$user['id'].' 还差'.($limitTime - (time() - $prevTime)).'秒'.PHP_EOL;
+                return false;
+            }
+        }
+    
+        (new TowerService())->main($user);
     
         Redis::getInstance()->setex($key, 86400, time());
     }

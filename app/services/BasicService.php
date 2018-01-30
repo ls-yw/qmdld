@@ -5,6 +5,7 @@ use Basic\BaseService;
 use Library\Curl;
 use Library\Log;
 use Models\UserInfo;
+use Library\Redis;
 
 class BasicService extends BaseService
 {
@@ -341,6 +342,8 @@ class BasicService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
+                $key = 'wulin_sign_'.date('Ymd').'_'.$user['id'];
+                Redis::getInstance()->setex($key, 86400, 1);
                 Log::dld($user['id'], "武林大会 ".$data['msg']);
             }
             return true;

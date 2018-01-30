@@ -6,7 +6,7 @@ class BaseController extends \Phalcon\Mvc\Controller
     protected $_user;
     
     private $_whiteRouter = [
-        'index' => ['index','login', ''],
+        'index' => ['index','login', 'user', ''],
         'dld' => ['config'],
     ];
 

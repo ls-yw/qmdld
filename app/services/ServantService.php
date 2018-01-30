@@ -291,7 +291,7 @@ class ServantService extends BaseService
                     if($val['cash_rob'] < 150)continue;
                     if(empty($arr) || $arr['attack_power'] > $val['attack_power'])$arr = $val;
                 }
-                return !empty($arr) && ($userInfo['attack_power'] - $arr['attack_power'] > 2500) ? $arr : [];
+                return !empty($arr) && ($userInfo['attack_power'] - $arr['attack_power'] > 4000) ? $arr : [];
             }else{
                 return false;
             }

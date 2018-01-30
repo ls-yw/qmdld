@@ -44,7 +44,7 @@ class PvpService extends BaseService
         if($result){
             foreach ($result['friendlist'] as $val) {
                 if(abs($val['level']  - $userInfo['lvl']) > 5)continue;  //等级相差十五级，跳过
-                if($userInfo['attack_power'] - $val['power'] < 2000)continue;  //战斗力不高于2000，则跳过
+                if($userInfo['attack_power'] - $val['power'] < 4000)continue;  //战斗力不高于2000，则跳过
                 if($val['can_fight'] != 1)continue;  //已战斗过，则跳过
             
                 $res = $this->fight($user, $val, $type);
@@ -60,7 +60,7 @@ class PvpService extends BaseService
         if($result){
             foreach ($result['friendlist'] as $val) {
                 if(abs($val['level']  - $userInfo['lvl']) > 5)continue;  //等级相差十级，跳过
-                if($userInfo['attack_power'] - $val['power'] < 2000)continue;  //战斗力不高于2000，则跳过
+                if($userInfo['attack_power'] - $val['power'] < 4000)continue;  //战斗力不高于2000，则跳过
                 if($val['can_fight'] != 1)continue;  //不能战斗，则跳过
             
                 $res = $this->fight($user, $val, $type);
@@ -78,7 +78,7 @@ class PvpService extends BaseService
             if($result){
                 foreach ($result['friendlist'] as $val) {
                     if(abs($val['level']  - $userInfo['lvl']) > 5)continue;  //等级相差十级，跳过
-                    if($userInfo['attack_power'] - $val['power'] < 2000)continue;  //战斗力不高于2000，则跳过
+                    if($userInfo['attack_power'] - $val['power'] < 4000)continue;  //战斗力不高于2000，则跳过
                     if($val['can_fight'] != 1)continue;  //不能战斗，则跳过
                 
                     $res = $this->fight($user, $val, $type);

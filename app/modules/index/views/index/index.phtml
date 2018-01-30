@@ -79,6 +79,11 @@
 		                     <div class="col-md-4">免费次数：<span class="qualifying_num"></span></div>
 		                 </div>
 		                 <div class="row">
+                             <div class="col-md-4">历练次数：<span class="lilian_num"></span></div>
+		                     <div class="col-md-4">英雄历练次数：<span class="hero_lilian_num"></span></div>
+		                     <div class="col-md-4">千层塔：<span class="tower"></span></div>
+		                 </div>
+		                 <div class="row">
                              <div class="col-md-4">72变：<span class="unlock_page"></span> <button type="button" onclick="unlockPage();" class="unlockPage">解锁</button></div>
                              <div class="col-md-4">场景：<span class="unlock_scene"></span> <button type="button" onclick="unlockScene();" class="unlockScene">解锁</button></div>
 		                 </div>
@@ -187,7 +192,7 @@
 		          <th>历练</th>
 		          <td class="form-inline">
 		             <label class="checkbox-inline">
-                      <input type="checkbox" id="lilian_ordinary" name="lilian_ordinary" class="lilian_ordinary" value="1"> 普通历练
+                      <input type="checkbox" id="lilian_ordinary" name="lilian_ordinary" class="lilian_ordinary" value="1"> 自动历练
                     </label>
                     <div class="form-group">
                         <select class="form-control lilian_ordinary_type" name="lilian_ordinary_type" id="lilian_ordinary_type">
@@ -199,6 +204,24 @@
                     <label class="checkbox-inline">
                       <input type="checkbox" id="lilian_used" name="lilian_used" class="lilian_used" value="1"> 使用令牌
                     </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>英雄历练</th>
+		          <td class="form-inline">
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="lilian_hero_ordinary" name="lilian_hero_ordinary" class="lilian_hero_ordinary" value="1"> 自动历练
+                    </label>
+                    <div class="form-group">
+                        <select class="form-control lilian_hero_ordinary_type" name="lilian_hero_ordinary_type" id="lilian_hero_ordinary_type">
+                          <option value="1">爬楼</option>
+                          <option value="2">物品</option>
+                          <option value="3">满星</option>
+                        </select>
+                    </div>
+                    <div style="display:inline-block;width:500px;">
+                      <select class="lilian_hero_ordinary_goods chosen" id="lilian_hero_ordinary_goods" name="lilian_hero_ordinary_goods[]" multiple="multiple" max=4 placeholder="请选择想要获得的物品"></select>
+                    </div>
 		          </td>
 		      <tr>
 		  </table>

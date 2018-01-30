@@ -55,6 +55,8 @@ class MarryHangupService extends BaseService
                 $res['encourage'] = $data['encourage'];
                 $res['fight']     = $data['fight'];
                 $res['maxfight']  = $data['maxfight'];
+                
+                if($data['rlcoin'] >= 1000)$this->exchange($user);
 //                 if($data['encourage'] == 0){
 //                     $this->encourage($user);
 //                 }
@@ -317,6 +319,34 @@ class MarryHangupService extends BaseService
         }elseif ($arr1['cansend'] == 1){
             $newBag = $this->send($user, $arr1['grid_id']);
             if(count($newBag) > 0)$this->_dealEquip($user, $newBag);
+        }
+    }
+    
+    public function exchange($user) {
+        //cmd=marry_hangup&op=exchange&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=0fe4d9abbe7bef974653b084ca18fc0a&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'marry_hangup';
+        $params['op']             = 'exchange';
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], '兑换成功，获得：'.$data['point_award'].' 仙缘，'.$data['stone_award'].' 强化石'.(count($data['equip_award']) > 0 ? '，'.$data['equip_award']['name'] : ''));
+                return $data['bag'];
+            }else{
+                return false;
+            }
+        }else{
+            return false;
         }
     }
 }

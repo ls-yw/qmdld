@@ -1,0 +1,28 @@
+@CHARSET "UTF-8";
+*{
+	line-height:24px;
+}
+#main .container{
+	border: 1px solid #ccc;
+	margin-top:100px;
+	margin-bottom:50px;
+}
+#main .container .logs{
+	height:400px;
+	padding:5px;
+	overflow-y:scroll;
+}
+.border-bottom{
+	border-bottom: 1px solid #ccc;
+}
+.border-right{
+	border-right: 1px solid #ccc;
+}
+#index .loginForm{margin:50px;}
+#index .userInfo{margin:10px;}
+#main .container .userInfo img{
+	margin:5px;
+}
+#index .config{padding:10px;}
+#index .config table{margin-bottom:10px;}
+#index .config table tr td{padding:5px;}

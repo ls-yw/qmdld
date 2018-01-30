@@ -25,6 +25,7 @@ class AutoTask extends BaseTask
             $config = (new UserConfig())->getByUserId($user['id']);
             if(!$config)continue;
             system('/usr/bin/php /data/html/www/qmdld/tasks/cli.php lilian main '.$user['id'].'  >> /data/logs/task-dld.log');
+            system('/usr/bin/php /data/html/www/qmdld/tasks/cli.php lilian hero '.$user['id'].'  >> /data/logs/task-dld.log');
         }
     }
     

@@ -143,7 +143,7 @@ class MeridianService extends BaseService
             while ($info && $info['prestige'] >= 300) {
                 $info = $this->meridian($user, $info['act_npc'], $userConfig);
             }
-            (new UserInfo())->updateData(['prestige'=>$info['prestige'], 'spirit'=>$info['spirit']], ['user_id'=>$user['id']]);
+            if($info)(new UserInfo())->updateData(['prestige'=>$info['prestige'], 'spirit'=>$info['spirit']], ['user_id'=>$user['id']]);
             Log::dld($user['id'], '剩余'. $info['prestige']." 威望，小于300，不造访");
         }
         return false;

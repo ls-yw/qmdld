@@ -4,6 +4,8 @@ namespace Services;
 use Basic\BaseService;
 use Library\Curl;
 use Library\Log;
+use Models\LilianReward;
+use Models\UserInfo;
 
 class LilianService extends BaseService
 {
@@ -18,13 +20,78 @@ class LilianService extends BaseService
         }
     }
     
+    /**
+     * 更新历练获取物品
+     * @param unknown $user
+     * @param unknown $dup
+     * @return boolean
+     * @create_time 2018年1月30日
+     */
+    public function updateLilianReward($user, $dup)
+    {
+        $initDup = $dup;
+        for ($i=0;$i<3;$i++){
+            for ($j=3;$j<=15;$j=$j+3){
+                $info = $this->getLevelInfo($user, $dup, $j);
+                if($info === false)return false;
+                foreach ($info['goods'] as $v){
+                    $where = ['good_id'=>$v['id'], 'dup'=>$initDup];
+                    $row = (new LilianReward())->getOne($where);
+                    if(!$row){
+                        $data = $where;
+                        $data['name'] = $v['name'];
+                        (new LilianReward())->insertData($data);
+                    }
+                }
+            }
+            $dup++;
+        }
+    }
+    
+    /**
+     * 获取关卡详情
+     * @param unknown $user
+     * @param unknown $dup
+     * @param unknown $level
+     * @create_time 2018年1月30日
+     */
+    public function getLevelInfo($user, $dup, $level)
+    {
+        //cmd=mappush&subcmd=EnterLevel&uid=6084512&dup=10005&level=3&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=135e507aa5f7819d3686ebcce8afe9f1&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'mappush';
+        $params['subcmd']         = 'EnterLevel';
+        $params['dup']            = $dup;
+        $params['level']          = $level;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                return ['goods'=>$data['gift']['items'], 'times'=>$data['left_times']];
+            }elseif($data['result'] == '110'){
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+    
     public function main($user)
     {
         $userConfig = (new UserService())->getUserConfig($user['id']);
         if($userConfig['lilian_used'] == 1)$this->useEnergy($user);
         if($userConfig['lilian_ordinary'] == 1){
             if($userConfig['lilian_ordinary_type'] == 3){
-//                 $this->index($user, $userConfig, 1);
+                $this->index($user, $userConfig, 1);
             }else{
                 $this->index($user, $userConfig);
             }
@@ -50,18 +117,18 @@ class LilianService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
+                foreach ($data['userinfo']['info']['giftstatus'] as $k => $v){
+                    if($v == 1)$this->getFullStarReward($user, $data['userinfo']['thisdup'], ($k+1));
+                }
+                (new UserInfo())->updateData(['lilian_num'=>$data['energy']], ['user_id'=>$user['id']]);
                 if($data['energy'] > 0){
                     $curdup = $data['userinfo']['curdup'];
                     $curlevel = $data['userinfo']['info']['curlevel'];
                     
-                    foreach ($data['userinfo']['info']['giftstatus'] as $k => $v){
-                        if($v == 1)$this->getFullStarReward($user, $data['userinfo']['thisdup'], ($k+1));
-                    }
-                    
                     if($userConfig['lilian_ordinary_type'] == 3){
-                        foreach ($data['userinfo']['info']['levelmap'] as $val){
+                        foreach ($data['userinfo']['info']['levelmap'] as $key => $val){
                             if($val['star'] > 0 && $val['star'] < 3){
-                                $this->fight($user, $curdup, $curlevel);
+                                $this->fight($user, $data['userinfo']['thisdup'], $key);
                                 return true;
                             }
                         }
@@ -159,12 +226,12 @@ class LilianService extends BaseService
      * @param unknown $level
      * @create_time 2018年1月23日
      */
-    public function fight($user, $curdup, $curlevel)
+    public function fight($user, $curdup, $curlevel, $type='pt')
     {
         $userConfig = (new UserService())->getUserConfig($user['id']);
         $dup   = $curdup;
         $level = $curlevel;
-        if($userConfig['lilian_ordinary_type'] == 2){
+        if($type == 'pt' && $userConfig['lilian_ordinary_type'] == 2){
             $dup   = ($curlevel == 1) ? $curdup -1 : $curdup;
             $level = ($curlevel == 1) ? 15 : $curlevel - 1;
         }
@@ -189,8 +256,19 @@ class LilianService extends BaseService
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
                 $reward = $this->getAwardsName($data['award']);
-                Log::dld($user['id'], "{$dup}-{$level} {$data['msg']}".(!empty($reward) ? '获得'.$reward : ''));
-                ($data['win'] == 0) ? $this->fight($user, $curdup, $curlevel) : $this->index($user,$userConfig, $dup);
+                $numKey = $type == 'pt' ? 'energy' : 'high_energy';
+                Log::dld($user['id'], "{$dup}-{$level} {$data['msg']}".(!empty($data['star']) ? "{$data['star']}星。" : '').(!empty($reward) ? '获得'.$reward.' 还剩'.$data[$numKey].'次机会' : ''));
+                
+                $fun = $type == 'pt' ? 'index' : 'heroIndex';
+                if($data['win'] == 0){
+                    $this->fight($user, $curdup, $curlevel, $type);
+                }else{
+                    if($type == 'yx' && $userConfig['lilian_hero_ordinary_type'] == 2){
+                        $this->fight($user, $curdup, $curlevel, $type);
+                        return true;
+                    }
+                    $this->{$fun}($user,$userConfig, $dup);
+                }
             }else{
                 return false;
             }
@@ -237,7 +315,14 @@ class LilianService extends BaseService
     }
     
     public function heroMain($user) {
-        $this->heroIndex($user);
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['lilian_hero_ordinary'] == 1){
+            if($userConfig['lilian_hero_ordinary_type'] == 3){
+                $this->index($user, $userConfig, 10001);
+            }else{
+                $this->heroIndex($user, $userConfig);
+            }
+        }
     }
     
     public function heroIndex($user, $userConfig, $dup=10000) {
@@ -259,26 +344,47 @@ class LilianService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                if($data['energy'] > 0){
+                foreach ($data['userinfo']['info']['giftstatus'] as $k => $v){
+                    if($v == 1)$this->getFullStarReward($user, $data['userinfo']['thisdup'], ($k+1));
+                }
+                
+                (new UserInfo())->updateData(['hero_lilian_num'=>$data['high_energy']], ['user_id'=>$user['id']]);
+                if($data['high_energy'] > 0){
                     $curdup = $data['userinfo']['curdup'];
                     $curlevel = $data['userinfo']['info']['curlevel'];
-    
-                    foreach ($data['userinfo']['info']['giftstatus'] as $k => $v){
-                        if($v == 1)$this->getFullStarReward($user, $data['userinfo']['thisdup'], ($k+1));
-                    }
     
                     if($userConfig['lilian_hero_ordinary_type'] == 3){
                         foreach ($data['userinfo']['info']['levelmap'] as $val){
                             if($val['star'] > 0 && $val['star'] < 3){
-                                $this->fight($user, $curdup, $curlevel);
+                                $this->fight($user, $curdup, $curlevel, 'yx');
                                 return true;
                             }
                         }
-                        if($data['userinfo']['thisdup'] < $data['userinfo']['curdup'])$this->index($user, $userConfig, ($dup+1));
+                        if($data['userinfo']['thisdup'] < $data['userinfo']['curdup'])$this->heroIndex($user, $userConfig, ($dup+1));
                     }elseif($userConfig['lilian_hero_ordinary_type'] == 2){
-                        
+                        if(empty($userConfig['lilian_hero_ordinary_goods'])){
+                            Log::dld($user['id'], "未设置英雄历练物品");
+                            return false;
+                        }
+                        $dup   = ($curlevel == 3) ? $curdup -1 : $curdup;
+                        $level = ($curlevel == 3) ? 15 : $curlevel - 3;
+                        $wantRewards = explode(',', $userConfig['lilian_hero_ordinary_goods']);
+                        for($i=$dup;$i>10000;$i--){
+                            if($i != $dup)$level = 15;
+                            for ($j=$level;$j>=3;$j=$j-3){
+                                $info = $this->getLevelInfo($user, $i, $j);
+                                if($info === false)return false;
+                                if(empty($info['goods']) || $info['times'] <= 0)continue;
+                                foreach ($info['goods'] as $vv){
+                                    if(in_array($vv['id'], $wantRewards)){
+                                        $this->fight($user, $i, $j, 'yx');
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }else{
-                        $this->fight($user, $curdup, $curlevel);
+                        $this->fight($user, $curdup, $curlevel, 'yx');
                     }
                 }
             }

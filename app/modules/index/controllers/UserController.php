@@ -6,6 +6,7 @@ use Models\UserConfig;
 use Services\UserService;
 use Library\Redis;
 use Models\Shops;
+use Models\LilianReward;
 
 class UserController extends BaseController{
 
@@ -36,14 +37,20 @@ class UserController extends BaseController{
         $data['lilian_ordinary']           = (int)$this->request->getPost('lilian_ordinary', 'int', 0);
         $data['lilian_ordinary_type']      = (int)$this->request->getPost('lilian_ordinary_type', 'int', 1);
         $data['lilian_used']               = (int)$this->request->getPost('lilian_used', 'int', 0);
+        $data['lilian_hero_ordinary']      = (int)$this->request->getPost('lilian_hero_ordinary', 'int', 0);
+        $data['lilian_hero_ordinary_type'] = (int)$this->request->getPost('lilian_hero_ordinary_type', 'int', 1);
+        
         
         //商店保存
-        $pvpShop         = $this->request->getPost('pvp_shop');
-        $servantShop     = $this->request->getPost('servant_shop');
-        $qualifyingShop  = $this->request->getPost('qualifying_shop');
+        $pvpShop                         = $this->request->getPost('pvp_shop');
+        $servantShop                     = $this->request->getPost('servant_shop');
+        $qualifyingShop                  = $this->request->getPost('qualifying_shop');
         $data['pvp_shop']                = !empty($pvpShop) ? implode(',', $pvpShop) : '';
         $data['servant_shop']            = !empty($servantShop) ? implode(',', $servantShop) : '';
         $data['qualifying_shop']         = !empty($qualifyingShop) ? implode(',', $qualifyingShop) : '';
+        
+        $lilianHeroGoods                         = $this->request->getPost('lilian_hero_ordinary_goods');
+        $data['lilian_hero_ordinary_goods']      = !empty($lilianHeroGoods) ? implode(',', $lilianHeroGoods) : '';
         
         $userConfig = (new UserService())->getUserConfig($userId);
         if($userConfig){
@@ -80,5 +87,11 @@ class UserController extends BaseController{
             }
         }
         return $this->ajaxReturn($list, 0, '成功');
+    }
+    
+    public function lilianGoodsAction() {
+        $dup = $this->request->getPost('dup');
+        $goods = (new LilianReward())->getList(['dup'=>$dup]);
+        return $this->ajaxReturn($goods, 0, '成功');
     }
 }

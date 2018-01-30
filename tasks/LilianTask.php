@@ -26,4 +26,23 @@ class LilianTask extends BaseTask
        Redis::getInstance()->del($lockKey);
     }
     
+    public function heroAction($params)
+    {
+        $userId = $params[0];
+        if(empty($userId))return false;
+         
+        $lockKey = 'lilian_hero_task_lock_'.$userId;
+        if(Redis::getInstance()->exists($lockKey)){
+            echo date('Y-m-d H:i:s')."\t{$lockKey} 程序已被锁住".PHP_EOL;
+            exit;
+        }
+        Redis::getInstance()->setex($lockKey, 86400 , 'lock');
+         
+        $user = (new User())->getById($userId);
+         
+        (new LilianService())->heroMain($user);
+         
+        Redis::getInstance()->del($lockKey);
+    }
+    
 }
