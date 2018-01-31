@@ -5,10 +5,11 @@ use Basic\BaseService;
 use Models\Shops;
 use Library\Redis;
 use Library\Curl;
+use Models\Goods;
 
 class GoodsService extends BaseService
 {
-    public function updateGoods($user)
+    public function updateShops($user)
     {
         $shops = ['pvp', 'servant', 'qualifying'];
         foreach ($shops as $val){
@@ -25,8 +26,27 @@ class GoodsService extends BaseService
             }
             Redis::getInstance()->del($key);
         }
+    }
+    
+    /**
+     * 更新物品
+     * @param unknown $user
+     * @create_time 2018年1月31日
+     */
+    public function updateGoods($user)
+    {
+        $shops = ['pvp', 'servant', 'qualifying'];
+        foreach ($shops as $val){
+            $shop = $this->{$val}($user);
         
-        
+            foreach ($shop['goods'] as $v){
+                $info = (new Goods())->getById($v['goods_id']);
+                if(!$info){
+                    $data = ['id'=>$v['goods_id'], 'name'=>$v['name']];
+                    (new Goods())->insertData($data);
+                }
+            }
+        }
     }
     
     /**

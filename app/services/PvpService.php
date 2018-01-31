@@ -225,34 +225,11 @@ class PvpService extends BaseService
     public function usedVitPotion($user) {
         $potions = $this->getVitPotion($user);
         if($potions && count($potions) > 0){
-            //cmd=storage&op=use&uid=6084512&id=100002&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=87fb9342d130b34ad95d2218fee8e50a&pf=wx2
-            //{"result":0,"changed":{"attrs":[{"id":"kVit","num":30}],"items":[{"id":100002,"num":-1}]},"rodinfo":[{"name":"kRedDotFaction","flag":1},{"name":"kRedDotBagGlodNum","flag":1}]}
-            $url = $this->_config->dldUrl->url;
-            $params = [];
-            $params['cmd']            = 'storage';
-            $params['op']             = 'use';
-            $params['uid']            = $user['uid'];
-            $params['uin']            = null;
-            $params['skey']           = null;
-            $params['h5openid']       = $user['h5openid'];
-            $params['h5token']        = $user['h5token'];
-            $params['pf']             = 'wx2';
             foreach ($potions as $val) {
-                $params['id']             = $val['Goods'];
                 $num = ($val['limit'] > $val['Num']) ? $val['Num'] : $val['limit'];
                 for($i=0;$i<$num;$i++) {
-                    $result = Curl::dld($url, $params);
-                    if($result['code'] == 0){
-                        $data = $result['data'];
-                        $this->dealResult($data, $user['id']);
-                        if($data['result'] == '0'){
-                            Log::dld($user['id'], "使用一个{$val['Name']}，获得 {$data['changed']['attrs'][0]['num']} 能量");
-                        }else{
-                            break;
-                        }
-                    }else{
-                        break;
-                    }
+                    $res = (new BasicService())->useGood($user, $val['Goods']);
+                    if(!$res)break;
                 }
             }
         }

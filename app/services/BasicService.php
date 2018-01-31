@@ -6,6 +6,7 @@ use Library\Curl;
 use Library\Log;
 use Models\UserInfo;
 use Library\Redis;
+use Models\Goods;
 
 class BasicService extends BaseService
 {
@@ -102,7 +103,7 @@ class BasicService extends BaseService
                     $userInfoData['user_id']      = $user['id'];
                     $row = (new UserInfo())->insertData($userInfoData);
                 }
-                (new GoodsService())->updateGoods($user);
+                (new GoodsService())->updateShops($user);
                 $row ? Log::dld($user['id'], '更新用户信息成功') : Log::dld($user['id'], '更新用户信息失败');
                 return true;
             }
@@ -347,6 +348,88 @@ class BasicService extends BaseService
                 Log::dld($user['id'], "武林大会 ".$data['msg']);
             }
             return true;
+        }
+    }
+    
+    /**
+     * 获取状态详情
+     * @param unknown $user
+     * @create_time 2018年1月31日
+     */
+    public function getStatus($user) {
+        //cmd=detail&op=status&needreload=1&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=3480bb77a97af44c7e0f8a6f0c579530&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'detail';
+        $params['op']             = 'status';
+        $params['needreload']     = 1;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                return $data['status_info'];
+            }
+            return false;
+        }
+    }
+    
+    /**
+     * 增加状态
+     * @param unknown $user
+     * @param unknown $id
+     * @create_time 2018年1月31日
+     */
+    public function addStatus($user) {
+        $status = $this->getStatus($user);
+        foreach ($status as $val){
+            if($val['shop_id'] == 0)continue;
+            if(in_array($val['shop_id'], [100011, 100012, 100013, 100014]) && $val['has'] == 0){
+                $this->useGood($user, $val['shop_id']);
+            }
+        }
+    }
+    
+    /**
+     * 使用商品
+     * @param unknown $user
+     * @param unknown $id
+     * @create_time 2018年1月31日
+     */
+    public function useGood($user, $id) {
+        //cmd=storage&op=use&id=100021&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=3480bb77a97af44c7e0f8a6f0c579530&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'storage';
+        $params['op']             = 'use';
+        $params['id']             = $id;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $reward = $this->getAwardsName($data['award']);
+                $good = (new Goods())->getById($id);
+                $msg = '使用了一个';
+                $msg .= $good ? $good['name'] : '';
+                $msg .= '获得'.$reward;
+                Log::dld($user['id'], $msg);
+            }
+            return false;
         }
     }
 }

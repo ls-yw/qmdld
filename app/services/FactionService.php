@@ -205,4 +205,150 @@ class FactionService extends BaseService
             return true;
         }
     }
+    
+    /**
+     * 获取洞穴详情
+     * @param unknown $user
+     * @create_time 2018年1月31日
+     */
+    public function getCaveInfo($user) {
+        //cmd=faction&op=cave_query&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=71fd4a590cad8b4da72fafaa76f0d058&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'faction';
+        $params['op']             = 'cave_query';
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $list = ['sep'=>$data['cave']['seq']];
+                $ordinary_status = false;
+                foreach ($data['cave']['monster'] as $key => $val){
+                    $info = false;
+                    if($val['hp'] > 0)$info = $this->getCaveMonsterInfo($user, $data['cave']['seq'], $val['id']);
+                    $list['ordinary'][$key]['id']           = $val['id'];
+                    $list['ordinary'][$key]['name']         = $val['name'];
+                    $list['ordinary'][$key]['hp']           = $val['hp'].'/'.$val['maxhp'];
+                    $list['ordinary'][$key]['des_stauts']   = $info ? $info['des_stauts'] : '';
+                    $list['ordinary'][$key]['des_weak']     = $info ? $info['des_weak'] : '';
+                    
+                    if($val['hp'] == 0){
+                        $list['ordinary'][$key]['status'] = 0;
+                    }else {
+                        if(!$ordinary_status){
+                            $list['ordinary'][$key]['status'] = 1;
+                            $ordinary_status = true;
+                        }else{
+                            $list['ordinary'][$key]['status'] = 2;
+                        }
+                    }
+                }
+                
+                foreach ($data['cave']['boss']['monster'] as $key => $val){
+                    $info = false;
+                    if($val['hp'] > 0)$this->getCaveMonsterInfo($user, $data['cave']['seq'], $val['id']);
+                    $list['boss'][$key]['id']           = $val['id'];
+                    $list['boss'][$key]['name']         = $val['name'];
+                    $list['boss'][$key]['hp']           = $val['hp'].'/'.$val['maxhp'];
+                    $list['boss'][$key]['des_stauts']   = $info ? $info['des_stauts'] : '';
+                    $list['boss'][$key]['des_weak']     = $info ? $info['des_weak'] : '';
+                    if($ordinary_status){
+                        $list['boss'][$key]['status'] = 2;
+                    }else {
+                        if($val['hp'] == 0){
+                            $list['boss'][$key]['status'] = 0;
+                        }else{
+                            $list['boss'][$key]['status'] = 1;
+                        }
+                    }
+                }
+                return $list;
+            }
+            return false;
+        }
+        return false;
+    }
+    
+    /**
+     * 获取洞穴怪物详情
+     * @param unknown $user
+     * @param unknown $sep
+     * @param unknown $monster
+     * @create_time 2018年1月31日
+     */
+    public function getCaveMonsterInfo($user, $sep, $monster) {
+        //cmd=faction&op=cave_monster&seq=26&monster=2&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=834f8fbe7c559c6a296825114052f9bb&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'faction';
+        $params['op']             = 'cave_monster';
+        $params['seq']            = $sep;
+        $params['monster']        = $monster;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                return $data['monster'];
+            }
+            return false;
+        }
+        return false;
+    }
+    
+    /**
+     * 洞穴战斗
+     * @param unknown $user
+     * @param unknown $sep
+     * @param unknown $monster
+     * @create_time 2018年1月31日
+     */
+    public function caveFight($user, $sep, $monster) {
+        //params：cmd=faction&op=cave_fight&seq=5&monster=10&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=95a060c5665049fb29057c505c2376a0&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'faction';
+        $params['op']             = 'cave_fight';
+        $params['seq']            = $sep;
+        $params['monster']        = $monster;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $rewards = $this->getAwardsName($data['award']);
+                $msg = '挑战帮派洞穴怪物成功！造成伤害：'.$data['deduct_hp'].' 剩下血量：'.$data['remain_hp'].' 获得 '.$rewards;
+                Log::dld($user['id'], $msg);
+                return $msg;
+            }else{
+                $msg = '挑战帮派洞穴怪物：'.$data['msg'];
+                Log::dld($user['id'], $msg);
+                return $msg;
+            }
+            return false;
+        }
+        return false;
+    }
 }

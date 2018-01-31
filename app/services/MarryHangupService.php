@@ -340,8 +340,8 @@ class MarryHangupService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                Log::dld($user['id'], '兑换成功，获得：'.$data['point_award'].' 仙缘，'.$data['stone_award'].' 强化石'.(count($data['equip_award']) > 0 ? '，'.$data['equip_award']['name'] : ''));
-                return $data['bag'];
+                Log::dld($user['id'], '兑换成功，获得：'.$data['point_award'].' 仙缘，'.$data['stone_award'].' 强化石'.(isset($data['equip_award']) ? '，'.$data['equip_award']['name'] : ''));
+                return true;
             }else{
                 return false;
             }

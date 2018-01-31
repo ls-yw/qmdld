@@ -59,7 +59,7 @@ class ServantService extends BaseService
                     if($userConfig['servant_train'] == 1 && $data['exp_train_got'] < $data['exp_train_max']){  //训练
                         $this->train($user);
                     }
-                    if(($data['level'] - $val['level']) > 5 && $userConfig['servant_release'] == 1 ){
+                    if(isset($data['level']) && ($data['level'] - $val['level']) > 5 && $userConfig['servant_release'] == 1 ){
 //                         $this->release($user, $val);
                     }
                 }
@@ -291,7 +291,7 @@ class ServantService extends BaseService
                     if($val['cash_rob'] < 150)continue;
                     if(empty($arr) || $arr['attack_power'] > $val['attack_power'])$arr = $val;
                 }
-                return !empty($arr) && ($userInfo['attack_power'] - $arr['attack_power'] > 4000) ? $arr : [];
+                return !empty($arr) && ($userInfo['attack_power'] - $arr['attack_power'] > 5000) ? $arr : [];
             }else{
                 return false;
             }

@@ -67,11 +67,12 @@
 		                 <div class="row">
 		                     <div class="col-md-4">威望：<span class="prestige"></span></div>
 		                     <div class="col-md-4">修为池：<span class="spirit"></span></div>
+		                     <div class="col-md-4">婚姻：<span class="marry_status"></span></div>
 		                 </div>
                          <div class="row">
-                             <div class="col-md-4">婚姻：<span class="marry_status"></span></div>
 		                     <div class="col-md-4">帮派ID：<span class="fac_id"></span></div>
 		                     <div class="col-md-4">帮派名称：<span class="fac_name"></span></div>
+		                     <div class="col-md-4">帮派洞穴：<span class="fac_cave"></span> <button type="button" class="view_fac_cave">查看</button></div>
 		                 </div>
 		                 <div class="row">
                              <div class="col-md-4">排位：<span class="qualifying"></span></div>
@@ -253,9 +254,70 @@
 		</div>
 	</div>
 <script type="text/javascript" src="/plugins/chosen/chosen.jquery.js"></script>
+<script type="text/javascript" src="/plugins/artDialog/dialog.js"></script>
 <script src="/static/js/common.js"></script>
 <script src="/static/js/index.js"></script>
 <script type="text/javascript">
+$('.view_fac_cave').on('click',function(){
+	dialog({
+		id:'fac_cave',
+		width:'1024px',
+		title: '帮派洞穴',
+		content: '加载中...',
+		okValue: '确定',
+		ok: true,
+	}).show();
+	$.post("/dld/faction/getCaveInfo",function(res){
+		if(res.code == 0){
+			var html = '<div class="row">';
+			for(var i in res.data.ordinary){
+				html += '<div class="col-md-2">';
+				html += '<ul class="list-unstyled '+(res.data.ordinary[i].status == 0 ? 'gray' : (res.data.ordinary[i].status == 2 ? '' : 'text-success'))+'">';
+				html += '<li>'+res.data.ordinary[i].name+'</li>';
+				html += '<li class="red">'+res.data.ordinary[i].hp+'</li>';
+				html += '<li>'+res.data.ordinary[i].des_stauts+'</li>';
+				html += '<li>'+res.data.ordinary[i].des_weak+'</li>';
+				html += '<li>'+(res.data.ordinary[i].status == 0 ? '已击败' : (res.data.ordinary[i].status == 2 ? '未开启' : '<button type="button" class="cave-fight" data-sep="'+res.data.sep+'" data-id="'+res.data.ordinary[i].id+'">挑战</button>'))+'</li>';
+				html += '</ul>';
+				html += '</div>';
+			}
+			html += '</div>';
+			html += '<hr>';
+			html += '<div class="row">';
+			for(var j in res.data.boss){
+				html += '<div class="col-md-3">';
+				html += '<ul class="list-unstyled '+(res.data.boss[j].status == 0 ? 'gray' : (res.data.boss[j].status == 2 ? '' : 'text-success'))+'">';
+				html += '<li>'+res.data.boss[j].name+'</li>';
+				html += '<li class="red">'+res.data.boss[j].hp+'</li>';
+				html += '<li>'+res.data.boss[j].des_stauts+'</li>';
+				html += '<li>'+res.data.boss[j].des_weak+'</li>';
+				html += '<li>'+(res.data.boss[j].status == 0 ? '已击败' : (res.data.boss[j].status == 2 ? '未开启' : '<button type="button" class="cave-fight" data-sep="'+res.data.sep+'" data-id="'+res.data.boss[j].id+'">挑战</button>'))+'</li>';
+				html += '</ul>';
+				html += '</div>';
+			}
+			html += '</div>';
+			html += '<div class="row"><div class="col-md-12"><label class="checkbox-inline"><input type="checkbox" id="caveFightAutoStatus" checked="checked" class="caveFightAutoStatus" value="1">自动嗑药</label></div></div>';
+		}else{
+			var html = res.msg;
+		}
+		dialog({id: 'fac_cave'}).content(html);
+	},'json');
+});
+$('#main').on('click', '.cave-fight', function(){
+	var autoStatus = $('#caveFightAutoStatus').prop('checked') ? 1 : 0;
+	var id = $(this).data('id');
+	var sep = $(this).data('sep');
+	$.post("/dld/faction/caveFight",{autoStatus:autoStatus,id:id,sep:sep},function(res){
+		dialog({id: 'fac_cave'}).close();
+		dialog({
+			width:'200px',
+			title: '帮派洞穴挑战结果',
+			content: res.msg,
+			okValue: '确定',
+			ok: true,
+		}).show();
+	},'json');
+});
 </script>
 </body>
 </html>

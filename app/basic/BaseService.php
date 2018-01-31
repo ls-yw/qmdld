@@ -39,12 +39,25 @@ class BaseService{
         if(empty($awards))return $content;
         if(isset($awards['attrs']) && !empty($awards['attrs'])){
             foreach ($awards['attrs'] as $val) {
-                $content .= $val['name'].' +'.$val['num'].'  ';
+                if(!isset($val['name'])){
+                    switch ($val['id']){
+                        case 'kContrib':
+                            $val['name'] = '个人帮贡';
+                            break;
+                        case 'kCavePoint':
+                            $val['name'] = '矿洞积分';
+                            break;
+                        default:
+                            $val['name'] = '';
+                            break;
+                    }
+                }
+                $content .= $val['name'].' '.($val['num'] > 0 ? '+' : '-').$val['num'].'  ';
             }
         }
         if(isset($awards['items']) && !empty($awards['items'])){
             foreach ($awards['items'] as $val) {
-                $content .= $val['name'].' +'.$val['num'].'  ';
+                $content .= $val['name'].' '.($val['num'] > 0 ? '+' : '-').$val['num'].'  ';
             }
         }
         return $content;

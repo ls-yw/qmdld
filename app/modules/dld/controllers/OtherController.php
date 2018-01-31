@@ -3,6 +3,7 @@ namespace Modules\Dld\Controllers;
 
 use Basic\BaseController;
 use Services\OtherService;
+use Services\GoodsService;
 
 class OtherController extends BaseController
 {
@@ -24,5 +25,9 @@ class OtherController extends BaseController
     public function unlockSceneAction() {
         (new OtherService())->onekeyScene($this->_user);
         return $this->ajaxReturn('', 0, '成功');
+    }
+    
+    public function updateGoodsAction() {
+        (new GoodsService())->updateGoods($this->_user);
     }
 }

@@ -150,34 +150,11 @@ class LilianService extends BaseService
     public function useEnergy($user) {
         $canUseEnergy = $this->getCanUseEnergy($user);
         if($canUseEnergy && count($canUseEnergy) > 0){
-            //cmd=storage&op=use&uid=6084512&id=100015&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=0e0ee562b40bccb84818c817816ed7ba&pf=wx2
-            //{"result":0,"changed":{"attrs":[{"id":"kVit","num":30}],"items":[{"id":100002,"num":-1}]},"rodinfo":[{"name":"kRedDotFaction","flag":1},{"name":"kRedDotBagGlodNum","flag":1}]}
-            $url = $this->_config->dldUrl->url;
-            $params = [];
-            $params['cmd']            = 'storage';
-            $params['op']             = 'use';
-            $params['uid']            = $user['uid'];
-            $params['uin']            = null;
-            $params['skey']           = null;
-            $params['h5openid']       = $user['h5openid'];
-            $params['h5token']        = $user['h5token'];
-            $params['pf']             = 'wx2';
             foreach ($canUseEnergy as $val) {
-                $params['id']             = $val['Goods'];
                 $num = ($val['limit'] > $val['Num']) ? $val['Num'] : $val['limit'];
                 for($i=0;$i<$num;$i++) {
-                    $result = Curl::dld($url, $params);
-                    if($result['code'] == 0){
-                        $data = $result['data'];
-                        $this->dealResult($data, $user['id']);
-                        if($data['result'] == '0'){
-                            Log::dld($user['id'], "使用一个{$val['Name']}，获得 {$data['changed']['attrs'][0]['num']} {$data['changed']['attrs'][0]['name']}");
-                        }else{
-                            break;
-                        }
-                    }else{
-                        break;
-                    }
+                    $res = (new BasicService())->useGood($user, $val['Goods']);
+                    if(!$res)break;
                 }
             }
         }
