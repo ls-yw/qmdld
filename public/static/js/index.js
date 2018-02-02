@@ -34,6 +34,36 @@ $(function(){
 			}
 		},'json');
 	});
+	
+	$('.view_fac_cave').on('click',function(){
+		dialog({
+			id:'fac_cave',
+			width:'1024px',
+			title: '帮派洞穴',
+			content: '加载中...',
+			okValue: '确定',
+			ok: true,
+		}).show();
+		updateCave();
+	});
+	$('#main').on('click', '.cave-fight', function(){
+		var autoStatus = $('#caveFightAutoStatus').prop('checked') ? 1 : 0;
+		var id = $(this).data('id');
+		var sep = $(this).data('sep');
+		$.post("/dld/faction/caveFight",{autoStatus:autoStatus,id:id,sep:sep},function(res){
+			updateCave();
+			dialog({
+				width:'200px',
+				title: '帮派洞穴挑战结果',
+				content: res.msg,
+				okValue: '确定',
+				ok: true,
+			}).show();
+		},'json');
+	});
+	$('#main').on('click', '.cave-refresh', function(){
+		updateCave();
+	});
 });
 
 function init()
@@ -114,5 +144,44 @@ function heroLilianGoods()
 		}else{
 			alert(result.msg);
 		}
+	},'json');
+}
+
+function updateCave(){
+	dialog({id: 'fac_cave'}).content('');
+	$.post("/dld/faction/getCaveInfo",function(res){
+		if(res.code == 0){
+			var html = '<div class="row">';
+			for(var i in res.data.ordinary){
+				html += '<div class="col-md-2">';
+				html += '<ul class="list-unstyled '+(res.data.ordinary[i].status == 0 ? 'gray' : (res.data.ordinary[i].status == 2 ? '' : 'text-success'))+'">';
+				html += '<li>'+res.data.ordinary[i].name+'</li>';
+				html += '<li class="red">'+res.data.ordinary[i].hp+'</li>';
+				html += '<li>'+res.data.ordinary[i].des_stauts+'</li>';
+				html += '<li>'+res.data.ordinary[i].des_weak+'</li>';
+				html += '<li>'+(res.data.ordinary[i].status == 0 ? '已击败' : (res.data.ordinary[i].status == 2 ? '未开启' : (res.data.canFight ? '<button type="button" class="cave-fight" data-sep="'+res.data.sep+'" data-id="'+res.data.ordinary[i].id+'">挑战</button>' : '无次数')))+'</li>';
+				html += '</ul>';
+				html += '</div>';
+			}
+			html += '</div>';
+			html += '<hr>';
+			html += '<div class="row">';
+			for(var j in res.data.boss){
+				html += '<div class="col-md-3">';
+				html += '<ul class="list-unstyled '+(res.data.boss[j].status == 0 ? 'gray' : (res.data.boss[j].status == 2 ? '' : 'text-success'))+'">';
+				html += '<li>'+res.data.boss[j].name+'</li>';
+				html += '<li class="red">'+res.data.boss[j].hp+'</li>';
+				html += '<li>'+res.data.boss[j].des_stauts+'</li>';
+				html += '<li>'+res.data.boss[j].des_weak+'</li>';
+				html += '<li>'+(res.data.boss[j].status == 0 ? '已击败' : (res.data.boss[j].status == 2 ? '未开启' : (res.data.canFight ? '<button type="button" class="cave-fight" data-sep="'+res.data.sep+'" data-id="'+res.data.boss[j].id+'">挑战</button>' : '无次数')))+'</li>';
+				html += '</ul>';
+				html += '</div>';
+			}
+			html += '</div>';
+			html += '<div class="row"><div class="col-md-12"><label class="checkbox-inline"><input type="checkbox" id="caveFightAutoStatus" checked="checked" class="caveFightAutoStatus" value="1">自动嗑药</label> <button type="button" class="cave-refresh">刷新</button></div></div>';
+		}else{
+			var html = res.msg;
+		}
+		dialog({id: 'fac_cave'}).content(html);
 	},'json');
 }

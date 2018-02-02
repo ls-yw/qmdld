@@ -284,6 +284,11 @@ cmd=unlock&op=page&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhty
 action_ids id存在，说明已解锁，不存在则未解锁
 
 
+兑换码：
+cmd=secret&op=award&token=Ui68&uid=769448&uin=null&skey=null&h5openid=oKIwA0aGacUIRZjEHNXgzQvT65CA&h5token=85f193a3111a3df11b9c0c8e39cacabe&pf=wx2
+{"award":{"attrs":[{"id":"kVit","num":30,"name":"体力","desc":"用于玩家间的乐斗消耗！"},{"id":"kEnergy","num":3,"name":"江湖令","desc":"用于历练的消耗！"}],"items":[]},"result":0,"msg":"ok","changed":{"attrs":[{"id":"kVit","num":30},{"id":"kEnergy","num":3}]},"rodinfo":[]}
+
+
 ========================================老友回归==============================
 奖励列表：
 cmd=activity&aid=36&sub=query&uid=636428&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=bd69fcc8a839df769994e0bf963c05d4&pf=wx2

@@ -41,6 +41,7 @@ class FactionService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
+                (new UserInfo())->updateData(['fac_name'=>$data['faction_base']['name'], 'fac_cave'=>(3-$data['user_faction']['fight_cave_times']).'/3'], ['user_id'=>$user['id']]);
                 if(count($data['faction_reddot']) <= 0)return false;
                 foreach ($data['faction_reddot'] as $val) {
                     if($val['status'] != 1)continue;
@@ -52,7 +53,6 @@ class FactionService extends BaseService
                         
                     }
                 }
-                (new UserInfo())->updateData(['fac_name'=>$data['faction_base']['name']], ['user_id'=>$user['id']]);
             }
             return true;
         }
@@ -230,6 +230,10 @@ class FactionService extends BaseService
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
                 $list = ['sep'=>$data['cave']['seq']];
+                
+                $userInfo = (new UserInfo())->getByUserId($user['id']);
+                $list['canFight'] = $userInfo['fac_cave'] == '0/3' ? false : true;
+                
                 $ordinary_status = false;
                 foreach ($data['cave']['monster'] as $key => $val){
                     $info = false;
@@ -341,6 +345,7 @@ class FactionService extends BaseService
                 $rewards = $this->getAwardsName($data['award']);
                 $msg = '挑战帮派洞穴怪物成功！造成伤害：'.$data['deduct_hp'].' 剩下血量：'.$data['remain_hp'].' 获得 '.$rewards;
                 Log::dld($user['id'], $msg);
+                $this->index($user);
                 return $msg;
             }else{
                 $msg = '挑战帮派洞穴怪物：'.$data['msg'];

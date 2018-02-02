@@ -35,7 +35,7 @@ class GoodsService extends BaseService
      */
     public function updateGoods($user)
     {
-        $shops = ['pvp', 'servant', 'qualifying'];
+        $shops = ['pvp', 'servant', 'qualifying', 'mall'];
         foreach ($shops as $val){
             $shop = $this->{$val}($user);
         
@@ -95,7 +95,18 @@ class GoodsService extends BaseService
         return $this->shopCurl($user, 6, 'king_medal');
     }
     
-    public function shopCurl($user, $shoptype, $currency) {
+    /**
+     * 商城
+     * @param unknown $user
+     * @create_time 2018年2月1日
+     */
+    public function mall($user)
+    {
+        //cmd=shop&shoptype=1&needreload=1&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=747aaf214f06c60478c5bf821ccb4320&pf=wx2
+        return $this->shopCurl($user, 1, 'doudou', 1);
+    }
+    
+    public function shopCurl($user, $shoptype, $currency, $needreload='') {
         $url = $this->_config->dldUrl->url;
         $params = [];
         $params['cmd']            = 'shop';
@@ -106,6 +117,8 @@ class GoodsService extends BaseService
         $params['h5openid']       = $user['h5openid'];
         $params['h5token']        = $user['h5token'];
         $params['pf']             = 'wx2';
+        
+        if(!empty($needreload))$params['needreload'] = $needreload;
         
         $result = Curl::dld($url, $params);
         if($result['code'] == 0){

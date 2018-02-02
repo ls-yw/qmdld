@@ -193,10 +193,40 @@ class OtherService extends BaseService
                         foreach ($val['attrs'] as $v){
                             if($v['status'] != 0){
                                 $attr['scene']['unlock']++;
+                                $lists['scene'][] = $v;
                             }
-                            $lists['scene'][] = $v;
                         }
                         (new UserInfo())->updateData(['unlock_scene'=>$attr['scene']['unlock'].'/'.$attr['scene']['total']], ['user_id'=>$user['id']]);
+                    }
+                    if($val['type'] == 4){  //武器
+                        $attr['weapon']['total']  = count($val['attrs']);
+                        $attr['weapon']['unlock'] = 0;
+                        $attr['weapon']['get']    = 0;
+                        foreach ($val['attrs'] as $v){
+                            if($v['status'] != 0){
+                                $attr['weapon']['get']++;
+                            }
+                            if($v['status'] == 3){
+                                $attr['weapon']['unlock']++;
+                            }
+                            $lists['weapon'][] = $v;
+                        }
+                        (new UserInfo())->updateData(['unlock_weapon'=>$attr['weapon']['unlock'].'/'.$attr['weapon']['get'].'/'.$attr['weapon']['total']], ['user_id'=>$user['id']]);
+                    }
+                    if($val['type'] == 5){  //技能
+                        $attr['skill']['total']  = count($val['attrs']);
+                        $attr['skill']['unlock'] = 0;
+                        $attr['skill']['lock']   = 0;
+                        foreach ($val['attrs'] as $v){
+                            if($v['status'] != 0){
+                                $attr['skill']['get']++;
+                            }
+                            if($v['status'] == 3){
+                                $attr['skill']['unlock']++;
+                            }
+                            $lists['skill'][] = $v;
+                        }
+                        (new UserInfo())->updateData(['unlock_skill'=>$attr['skill']['unlock'].'/'.$attr['skill']['get'].'/'.$attr['skill']['total']], ['user_id'=>$user['id']]);
                     }
                 }
                 return $lists;
@@ -336,5 +366,87 @@ class OtherService extends BaseService
             }
             return true;
         }
+    }
+    
+    /**
+     * 一键分享武器
+     * @param unknown $user
+     * @create_time 2018年1月20日
+     */
+    public function onekeyWeapon($user) {
+        $lists = $this->handbook($user);
+        if(count($lists['weapon']) <= 0){
+            Log::dld($user['id'], "武器已全部分享");
+            return true;
+        }
+        foreach ($lists['weapon'] as $val){
+            if(!is_array($val) || $val['status'] != 2)continue;
+            if(substr($val['id'], -2) == '00')$val['id'] = substr($val['id'], 0, -2);
+            $this->getWeaponReward($user, 4, $val['id'], $val['name']);
+        }
+        $this->handbook($user);
+    }
+    
+    public function getWeaponReward($user, $type, $id, $name) {
+        //uid=6084512&cmd=task&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=510617694df07b1a820f8b7a052830e4&uin=null&skey=null&pf=wx2&subcmd=Report&id=252&otherOpenid=&share_from=20&share_type=4&share_id=200033
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'task';
+        $params['subcmd']         = 'Report';
+        $params['otherOpenid']    = '';
+        $params['share_from']     = '20';
+        $params['share_type']     = $type;
+        $params['share_id']       = $id;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $award = $this->getAwardsName($data['award']);
+                Log::dld($user['id'], "领取武器{$name}奖励：".$award);
+            }
+            return true;
+        }
+    }
+    
+    /**
+     * 兑换码兑换
+     * @param unknown $user
+     * @param unknown $code
+     * @return boolean
+     * @create_time 2018年2月2日
+     */
+    public function exchangeCode($user, $code) {
+        //cmd=secret&op=award&token=Ui68&uid=769448&uin=null&skey=null&h5openid=oKIwA0aGacUIRZjEHNXgzQvT65CA&h5token=85f193a3111a3df11b9c0c8e39cacabe&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'secret';
+        $params['op']             = 'award';
+        $params['token']          = $code;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $award = $this->getAwardsName($data['award']);
+                Log::dld($user['id'], "兑换成功：".$award);
+                return true;
+            }
+        }
+        return false;
     }
 }

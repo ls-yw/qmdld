@@ -27,7 +27,39 @@ class OtherController extends BaseController
         return $this->ajaxReturn('', 0, '成功');
     }
     
+    /**
+     * 分享武器
+     * 
+     * @create_time 2018年2月1日
+     */
+    public function unlockWeaponAction() {
+        (new OtherService())->onekeyWeapon($this->_user);
+        return $this->ajaxReturn('', 0, '成功');
+    }
+    
+    /**
+     * 分享技能
+     * 
+     * @create_time 2018年2月1日
+     */
+    public function unlockSkillAction() {
+        (new OtherService())->onekeySkill($this->_user);
+        return $this->ajaxReturn('', 0, '成功');
+    }
+    
     public function updateGoodsAction() {
         (new GoodsService())->updateGoods($this->_user);
+    }
+    
+    public function codeAction() {
+        $code = $this->request->getPost('code');
+        if(empty($code))return $this->ajaxReturn('', 1, '兑换码不能为空');
+        
+        $row = (new OtherService())->exchangeCode($this->_user, $code);
+        if($row){
+            return $this->ajaxReturn('', 0, '成功');
+        }else{
+            return $this->ajaxReturn('', 1, '兑换失败');
+        }
     }
 }

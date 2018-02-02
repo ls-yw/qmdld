@@ -18,7 +18,7 @@ class PvpService extends BaseService
         if(!empty($userConfig['pvp_shop']))$this->bugGoods($user, $userConfig['pvp_shop']);
         
         //领取好友赠送体力
-        if($userConfig['pvp_friend_vit'] == 1 && $userInfo['vit'] < 10){
+        if($userConfig['pvp_friend_vit'] == 1){
             $result = $this->getFriendList($user, 0);
             if($result['getvit'] < $result['maxvit']){
                 $this->sendFriendVit($user);
@@ -30,7 +30,7 @@ class PvpService extends BaseService
         }
         
         //自动使用体力药水
-        if($userConfig['pvp_potion'] == 1 && $userInfo['vit'] < 10){
+        if($userConfig['pvp_potion'] == 1){
             $this->usedVitPotion($user);
             (new BasicService())->getInfo($user);
             $userInfo = (new UserInfo())->getByUserId($user['id']);

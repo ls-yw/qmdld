@@ -59,9 +59,9 @@ class ServantService extends BaseService
                     if($userConfig['servant_train'] == 1 && $data['exp_train_got'] < $data['exp_train_max']){  //训练
                         $this->train($user);
                     }
-                    if(isset($data['level']) && ($data['level'] - $val['level']) > 5 && $userConfig['servant_release'] == 1 ){
-//                         $this->release($user, $val);
-                    }
+//                     if(isset($data['level']) && ($data['level'] - $val['level']) > 5 && $userConfig['servant_release'] == 1 ){
+// //                         $this->release($user, $val);
+//                     }
                 }
                 if($data['owner_uid'] > 0){
                     Log::dld($user['id'], "你被 ".urldecode($data['owner_name'])." 抓啦，对方等级：{$data['owner_level']}，战斗力：{$data['owner_attack_power']}");

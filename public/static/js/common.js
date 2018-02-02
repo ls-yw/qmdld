@@ -20,6 +20,7 @@ function getUserInfo()
 			$('.userInfo .sex').text(result.data.sex == 1 ? '男' : '女');
 			$('.userInfo .fac_id').text(result.data.fac_id);
 			$('.userInfo .fac_name').text(result.data.fac_name);
+			$('.userInfo .fac_cave').text(result.data.fac_cave);
 			$('.userInfo .exp').text(result.data.exp+'/'+result.data.max_exp);
 			$('.userInfo .vit').text(result.data.vit+'/100');
 			$('.userInfo .headimgurl').attr('src',result.data.headimgurl);
@@ -43,9 +44,19 @@ function getUserInfo()
 			$('.userInfo .marry_hangup').text(result.data.marry_hangup);
 			$('.userInfo .unlock_page').text(result.data.unlock_page);
 			$('.userInfo .unlock_scene').text(result.data.unlock_scene);
+			$('.userInfo .unlock_weapon').text(result.data.unlock_weapon);
+			$('.userInfo .unlock_skill').text(result.data.unlock_skill);
 			
 			(result.data.unlock_page == '120/120') ? $('.unlockPage').hide() : $('.unlockPage').show();
 			(result.data.unlock_scene == '17/17') ? $('.unlockScene').hide() : $('.unlockScene').show();
+			if(result.data.unlock_weapon != ''){
+				var unlock_weapon = result.data.unlock_weapon.split('/');
+				(unlock_weapon[0] == unlock_weapon[1]) ? $('.unlockWeapon').hide() : $('.unlockWeapon').show();
+			}
+			if(result.data.unlock_skill != ''){
+				var unlock_skill = result.data.unlock_skill.split('/');
+				(unlock_skill[0] == unlock_skill[1]) ? $('.unlockSkill').hide() : $('.unlockSkill').show();
+			}
 		}else{
 			alert(result.msg)
 		}
@@ -106,6 +117,26 @@ function unlockPage()
 function unlockScene()
 {
 	$.post("/dld/other/unlockScene",function(result){
+		if(result.code == 0){
+			getUserInfo();
+		}else{
+			alert(result.msg)
+		}
+	},'json');
+}
+function unlockWeapon()
+{
+	$.post("/dld/other/unlockWeapon",function(result){
+		if(result.code == 0){
+			getUserInfo();
+		}else{
+			alert(result.msg)
+		}
+	},'json');
+}
+function unlockSkill()
+{
+	$.post("/dld/other/unlockSkill",function(result){
 		if(result.code == 0){
 			getUserInfo();
 		}else{

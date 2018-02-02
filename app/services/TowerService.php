@@ -33,7 +33,7 @@ class TowerService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                (new UserInfo())->updateData(['tower'=>$data['baseInfo']['barrier'].'-'.$data['baseInfo']['layer']], ['user_id'=>$user['id']]);
+                (new UserInfo())->updateData(['tower'=>$data['baseInfo']['layer'].'-'.$data['baseInfo']['barrier']], ['user_id'=>$user['id']]);
                 if($data['giftInfo']['gift_status'] == 1)$this->getAward($user);
             }else{
                 return false;

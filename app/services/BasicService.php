@@ -392,7 +392,7 @@ class BasicService extends BaseService
         foreach ($status as $val){
             if($val['shop_id'] == 0)continue;
             if(in_array($val['shop_id'], [100011, 100012, 100013, 100014]) && $val['has'] == 0){
-                $this->useGood($user, $val['shop_id']);
+                $this->useGood($user, $val['shop_id']+10);
             }
         }
     }
