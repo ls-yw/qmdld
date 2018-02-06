@@ -564,4 +564,78 @@ class QualifyingService extends BaseService
             return false;
         }
     }
+    
+    public function doushenIndex($user)
+    {
+        //cmd=doushen&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=1faac839ebb280be5a9163e8ddc2de68&pf=wx2
+    }
+    
+    public function doushenMain($user)
+    {
+        $this->getDoushenRank($user);
+    }
+    
+    public function getDoushenRank($user) {
+        //cmd=doushen&op=rank&type=2&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=1faac839ebb280be5a9163e8ddc2de68&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'doushen';
+        $params['op']             = 'rank';
+        $params['type']           = 2;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                if($data['award_num'] < $data['max_award']){
+                    foreach ($data['friend_array'] as $val){
+                        if($val['win'] == 1 && $val['flag'] == 0){
+                            $res = $this->getDoushenMoney($user, $val['uid']);
+                            if($res == true){
+                                $data['award_num'] = $data['award_num'] + 30;
+                                Log::dld($user['id'], '好友斗神勋章：'.$data['award_num'].' / '.$data['max_award']);
+                            }
+                        }
+                        if($data['award_num'] >= $data['max_award'])return true;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+    
+    public function getDoushenMoney($user, $friuid) {
+        //cmd=doushen&op=reward&idx=100&friuid=3469815&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=236efcd907692ceed4b7f05f423c19e7&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'doushen';
+        $params['op']             = 'reward';
+        $params['idx']            = 100;
+        $params['friuid']         = $friuid;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+    
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], $data['msg']);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
 }

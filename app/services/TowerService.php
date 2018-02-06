@@ -35,6 +35,13 @@ class TowerService extends BaseService
             if($data['result'] == '0'){
                 (new UserInfo())->updateData(['tower'=>$data['baseInfo']['layer'].'-'.$data['baseInfo']['barrier']], ['user_id'=>$user['id']]);
                 if($data['giftInfo']['gift_status'] == 1)$this->getAward($user);
+                $info = [];
+                $info['status']['qm'] = $data['tech']['tech_list']['3'];
+                $info['status']['yy'] = $data['tech']['tech_list']['2'];
+                $info['status']['jg'] = $data['tech']['tech_list']['1'];
+                $info['status']['js'] = $data['tech']['tech_list']['0'];
+                $info['revive'] = $data['baseInfo']['revive'];
+                return $info;
             }else{
                 return false;
             }

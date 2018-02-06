@@ -41,7 +41,7 @@ class FactionService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                (new UserInfo())->updateData(['fac_name'=>$data['faction_base']['name'], 'fac_cave'=>(3-$data['user_faction']['fight_cave_times']).'/3'], ['user_id'=>$user['id']]);
+                (new UserInfo())->updateData(['fac_name'=>$data['faction_base']['name'], 'fac_cave'=>(3-(isset($data['user_faction']['fight_cave_times']) ? $data['user_faction']['fight_cave_times'] : 0)).'/3'], ['user_id'=>$user['id']]);
                 if(count($data['faction_reddot']) <= 0)return false;
                 foreach ($data['faction_reddot'] as $val) {
                     if($val['status'] != 1)continue;

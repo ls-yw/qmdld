@@ -83,7 +83,7 @@
 		                 <div class="row">
                              <div class="col-md-4">历练次数：<span class="lilian_num"></span></div>
 		                     <div class="col-md-4">英雄历练次数：<span class="hero_lilian_num"></span></div>
-		                     <div class="col-md-4">千层塔：<span class="tower"></span></div>
+		                     <div class="col-md-4">千层塔：<span class="tower"></span> <button type="button" class="view_tower">查看</button></div>
 		                 </div>
 		                 <div class="row">
                              <div class="col-md-4">72变：<span class="unlock_page"></span> <button type="button" onclick="unlockPage();" class="unlockPage">解锁</button></div>
@@ -103,7 +103,7 @@
 		          <th width="100">PVP</th>
 		          <td>
 		              <label class="checkbox-inline">
-                          <input type="checkbox" id="pvp_friend_vit" name="pvp_friend_vit" class="pvp_friend_vit" value="1"> 自动战斗
+                          <input type="checkbox" id="pvp_auto" name="pvp_auto" class="pvp_auto" value="1"> 自动战斗
                         </label>
                         <label class="checkbox-inline">
                           <input type="checkbox" id="pvp_potion" name="pvp_potion" class="pvp_potion" value="1"> 使用体力药水
@@ -263,25 +263,65 @@
 <script src="/static/js/common.js"></script>
 <script src="/static/js/index.js"></script>
 <script type="text/javascript">
-function exchangeCode(){
+$('.view_tower').on('click',function(){
 	dialog({
-		id:'fac_cave',
-		width:'300px',
-		title: '兑换',
-		content: '<div>兑换码：<input type="text" value="" id="duihuan_code"/></div>',
+		id:'tower_dialog',
+		width:'500px',
+		title: '千层塔',
+		content: '加载中...',
 		okValue: '确定',
-		ok: function(){
-			$.post("/dld/other/code",{'code':$('#duihuan_code').val()},function(res){
-				if(res.code == 0){
-					return true;
-				}else{
-					alert('兑换失败');
-					return false;
-				}
-			},'json');
-		},
-		cancel:true,
+		ok: true,
 	}).show();
+	updateTower();
+});
+function updateTower()
+{
+	dialog({id: 'tower_dialog'}).content('加载中...');
+	$.post("/dld/tower/getInfo",function(res){
+		if(res.code == 0){
+			var html = '<div class="row">';
+			html += '<div class="col-md-2">强命：'+res.data.status.qm.num+'</div>';
+			html += '<div class="col-md-2">英勇：'+res.data.status.yy.num+'</div>';
+			html += '<div class="col-md-2">坚固：'+res.data.status.jg.num+'</div>';
+			html += '<div class="col-md-2">急速：'+res.data.status.js.num+'</div>';
+			html += '<div class="col-md-2"></div>';
+			html += '<div class="col-md-2">复活次数：'+res.data.revive+'</div>';
+			html += '</div>';
+
+			
+			
+			for(var i in res.data.ordinary){
+				html += '<div class="col-md-2">';
+				html += '<ul class="list-unstyled '+(res.data.ordinary[i].status == 0 ? 'gray' : (res.data.ordinary[i].status == 2 ? '' : 'text-success'))+'">';
+				html += '<li>'+res.data.ordinary[i].name+'</li>';
+				html += '<li class="red">'+res.data.ordinary[i].hp+'</li>';
+				html += '<li>'+res.data.ordinary[i].des_stauts+'</li>';
+				html += '<li>'+res.data.ordinary[i].des_weak+'</li>';
+				html += '<li>'+(res.data.ordinary[i].status == 0 ? '已击败' : (res.data.ordinary[i].status == 2 ? '未开启' : (res.data.canFight ? '<button type="button" class="cave-fight" data-sep="'+res.data.sep+'" data-id="'+res.data.ordinary[i].id+'">挑战</button>' : '无次数')))+'</li>';
+				html += '</ul>';
+				html += '</div>';
+			}
+			html += '</div>';
+			html += '<hr>';
+			html += '<div class="row">';
+			for(var j in res.data.boss){
+				html += '<div class="col-md-3">';
+				html += '<ul class="list-unstyled '+(res.data.boss[j].status == 0 ? 'gray' : (res.data.boss[j].status == 2 ? '' : 'text-success'))+'">';
+				html += '<li>'+res.data.boss[j].name+'</li>';
+				html += '<li class="red">'+res.data.boss[j].hp+'</li>';
+				html += '<li>'+res.data.boss[j].des_stauts+'</li>';
+				html += '<li>'+res.data.boss[j].des_weak+'</li>';
+				html += '<li>'+(res.data.boss[j].status == 0 ? '已击败' : (res.data.boss[j].status == 2 ? '未开启' : (res.data.canFight ? '<button type="button" class="cave-fight" data-sep="'+res.data.sep+'" data-id="'+res.data.boss[j].id+'">挑战</button>' : '无次数')))+'</li>';
+				html += '</ul>';
+				html += '</div>';
+			}
+			html += '</div>';
+			html += '<div class="row"><div class="col-md-12"><label class="checkbox-inline"><input type="checkbox" id="caveFightAutoStatus" checked="checked" class="caveFightAutoStatus" value="1">自动嗑药</label> <button type="button" class="cave-refresh">刷新</button></div></div>';
+		}else{
+			var html = res.msg;
+		}
+		dialog({id: 'fac_cave'}).content(html);
+	},'json');
 }
 </script>
 </body>

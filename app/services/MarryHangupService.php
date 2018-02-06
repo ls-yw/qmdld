@@ -94,8 +94,9 @@ class MarryHangupService extends BaseService
         $result = Curl::dld($url, $params);
         if($result['code'] == 0){
             $data = $result['data'];
-            $this->dealResult($data, $user['id']);
-            if($data['result'] == '0'){
+            $is = $this->dealResult($data, $user['id']);
+            if($is === false)return false;
+            if($data['result'] == 0){
                 if(count($data['bag']) > 0)$this->_dealEquip($user, $data['bag']);
             }
             return true;
@@ -129,7 +130,7 @@ class MarryHangupService extends BaseService
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
                 Log::dld($user['id'], $data['msg']);
-                return $data['bag'];
+                return ;
             }else{
                 return false;
             }
@@ -312,13 +313,13 @@ class MarryHangupService extends BaseService
         $arr1 = current($bag);
         if($arr1['cansend'] == 0 && $arr1['canequip'] == 0){
             $newBag = $this->ronglian($user, $arr1['grid_id']);
-            if(count($newBag) > 0)$this->_dealEquip($user, $newBag);
+            if($newBag != false && count($newBag) > 0)$this->_dealEquip($user, $newBag);
         }elseif ($arr1['canequip'] == 1){
             $newBag = $this->toslot($user, $arr1['grid_id']);
-            if(count($newBag) > 0)$this->_dealEquip($user, $newBag);
+            if($newBag != false && count($newBag) > 0)$this->_dealEquip($user, $newBag);
         }elseif ($arr1['cansend'] == 1){
             $newBag = $this->send($user, $arr1['grid_id']);
-            if(count($newBag) > 0)$this->_dealEquip($user, $newBag);
+            if($newBag != false && count($newBag) > 0)$this->_dealEquip($user, $newBag);
         }
     }
     

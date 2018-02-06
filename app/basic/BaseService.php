@@ -26,6 +26,7 @@ class BaseService{
             }
             return false;
         }
+        return true;
 	}
 	
 	/**

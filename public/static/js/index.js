@@ -148,7 +148,7 @@ function heroLilianGoods()
 }
 
 function updateCave(){
-	dialog({id: 'fac_cave'}).content('');
+	dialog({id: 'fac_cave'}).content('加载中...');
 	$.post("/dld/faction/getCaveInfo",function(res){
 		if(res.code == 0){
 			var html = '<div class="row">';
@@ -184,4 +184,25 @@ function updateCave(){
 		}
 		dialog({id: 'fac_cave'}).content(html);
 	},'json');
+}
+
+function exchangeCode(){
+	dialog({
+		id:'fac_cave',
+		width:'300px',
+		title: '兑换',
+		content: '<div>兑换码：<input type="text" value="" id="duihuan_code"/></div>',
+		okValue: '确定',
+		ok: function(){
+			$.post("/dld/other/code",{'code':$('#duihuan_code').val()},function(res){
+				if(res.code == 0){
+					return true;
+				}else{
+					alert('兑换失败');
+					return false;
+				}
+			},'json');
+		},
+		cancel:true,
+	}).show();
 }

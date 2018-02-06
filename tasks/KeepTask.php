@@ -70,6 +70,9 @@ class KeepTask extends BaseTask
         //团队王者争霸
         $this->teamqua($user);
         
+        //斗神
+        $this->doushen($user);
+        
         //游历
         $this->marryHangup($user);
         
@@ -245,6 +248,30 @@ class KeepTask extends BaseTask
         }
     
         (new QualifyingService())->teamMain($user);
+    
+        Redis::getInstance()->setex($key, 86400, time());
+    }
+    
+    /**
+     * 斗神    半小时执行一次
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年1月18日
+     */
+    public function doushen($user)
+    {
+        $limitTime = 1800;
+        echo 'running doushen'.$user['id'].PHP_EOL;
+        $key = 'doushen_time_'.$user['id'];
+        if(Redis::getInstance()->exists($key)){
+            $prevTime = Redis::getInstance()->get($key);
+            if(time() - $prevTime <= $limitTime){
+                echo 'doushen 未到 '.$user['id'].' 还差'.($limitTime - (time() - $prevTime)).'秒'.PHP_EOL;
+                return false;
+            }
+        }
+    
+        (new QualifyingService())->doushenMain($user);
     
         Redis::getInstance()->setex($key, 86400, time());
     }

@@ -23,7 +23,7 @@ class PvpService extends BaseService
             if($result['getvit'] < $result['maxvit']){
                 $this->sendFriendVit($user);
                 $isSuccess = $this->getFriendVit($user);
-                if($isSuccess === false)return false;
+                if($userInfo['vit'] < 10 && $isSuccess === false)return false;
                 (new BasicService())->getInfo($user);
                 $userInfo = (new UserInfo())->getByUserId($user['id']);
             }
@@ -36,7 +36,7 @@ class PvpService extends BaseService
             $userInfo = (new UserInfo())->getByUserId($user['id']);
         }
         
-        if($userConfig['pvp_potion'] == 0)return false;
+        if($userConfig['pvp_auto'] == 0)return false;
         //优先好友战斗
         if($userInfo['vit'] < 10)return false;
         $type = 0;
