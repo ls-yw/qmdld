@@ -14,6 +14,7 @@ class ServantService extends BaseService
         $userConfig = (new UserService())->getUserConfig($user['id']);
         if(!empty($userConfig['servant_shop']))$this->bugGoods($user, $userConfig['servant_shop']);
         $this->index($user, $userConfig);
+        $this->getShareReward($user);
     }
     
     /**
@@ -392,6 +393,43 @@ class ServantService extends BaseService
                 unset($data['changed']['attrs']);
                 $awards = $this->getAwardsName($data['changed']);
                 Log::dld($user['id'], "家财商店购买了 {$awards}");
+                return true;
+            }else{
+                Log::dld($user['id'], $data['msg']);
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * 勾一下
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年2月8日
+     */
+    public function getShareReward($user)
+    {
+        //cmd=servant&uid=6084512&op=share&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=46fa3da7cb5dc49fe6b822bc24f61e02&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'servant';
+        $params['op']             = 'share';
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], "勾一下： {$data['msg']}");
                 return true;
             }else{
                 Log::dld($user['id'], $data['msg']);

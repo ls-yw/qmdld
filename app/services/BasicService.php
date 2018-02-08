@@ -428,8 +428,9 @@ class BasicService extends BaseService
                 $msg .= $good ? $good['name'] : '';
                 $msg .= '获得'.$reward;
                 Log::dld($user['id'], $msg);
+                return true;
             }
-            return false;
         }
+        return false;
     }
 }

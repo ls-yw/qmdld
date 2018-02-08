@@ -137,6 +137,8 @@ class LilianService extends BaseService
                         $this->fight($user, $curdup, $curlevel);
                     }
                 }
+            }elseif ($data['result'] == '110'){
+                return false;
             }
             return true;
         }
@@ -238,7 +240,8 @@ class LilianService extends BaseService
                 
                 $fun = $type == 'pt' ? 'index' : 'heroIndex';
                 if($data['win'] == 0){
-                    $this->fight($user, $curdup, $curlevel, $type);
+                    $r = $this->fight($user, $curdup, $curlevel, $type);
+                    if($r === false)return false;
                 }else{
                     if($type == 'yx' && $userConfig['lilian_hero_ordinary_type'] == 2){
                         $this->fight($user, $curdup, $curlevel, $type);

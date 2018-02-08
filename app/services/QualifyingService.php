@@ -15,11 +15,13 @@ class QualifyingService extends BaseService
      */
     public function main($user)
     {
+        $this->getAllRank($user);
+        $this->getRank($user);
+        
         $userConfig = (new UserService())->getUserConfig($user['id']);
         if(!empty($userConfig['qualifying_shop']))$this->bugGoods($user, $userConfig['qualifying_shop']);
         if($userConfig['qualifying_person'] == 0)return false;
         $this->index($user);
-        $this->getRank($user);
     }
     
     /**
@@ -29,10 +31,12 @@ class QualifyingService extends BaseService
      */
     public function teamMain($user)
     {
+        $this->getTeamAllRank($user);
+        $this->getTeamRank($user);
+        
         $userConfig = (new UserService())->getUserConfig($user['id']);
         if($userConfig['qualifying_team'] == 0)return false;
         $this->teamIndex($user);
-        $this->getTeamRank($user);
     }
     
     /**
@@ -216,21 +220,16 @@ class QualifyingService extends BaseService
         }
     }
     
-    /**
-     * 领取好友荣耀勋章
-     * @param unknown $user
-     * @param unknown $friuid
-     * @return boolean
-     * @create_time 2018年1月19日
-     */
-    public function getRankAward($user, $friuid) {
-        //cmd=qualifying&op=reward&idx=100&friuid=6661917&uid=636428&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=2388ab625144e111dd364b4100149114&pf=wx2
+    public function getAllRank($user)
+    {
+        //cmd=qualifying&op=rank&type=0&start=1&end=100&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=46fa3da7cb5dc49fe6b822bc24f61e02&pf=wx2
         $url = $this->_config->dldUrl->url;
         $params = [];
         $params['cmd']            = 'qualifying';
-        $params['op']             = 'reward';
-        $params['idx']            = 100;
-        $params['friuid']         = $friuid;
+        $params['op']             = 'rank';
+        $params['type']           = 0;
+        $params['start']          = 1;
+        $params['end']            = 100;
         $params['uid']            = $user['uid'];
         $params['uin']            = null;
         $params['skey']           = null;
@@ -243,7 +242,80 @@ class QualifyingService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                Log::dld($user['id'], $data['msg']);
+                $this->getRankAward($user, null, 4);
+                if($data['reward_flag'] == 0){
+                    $this->getRankAward($user, null, 3);
+                }
+            }
+            return true;
+        }
+    }
+    
+    public function getTeamAllRank($user)
+    {
+        //cmd=qualifying&op=rank&type=0&start=1&end=100&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=46fa3da7cb5dc49fe6b822bc24f61e02&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'teamqua';
+        $params['op']             = 'rank';
+        $params['type']           = 0;
+        $params['start']          = 1;
+        $params['end']            = 10;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+    
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $this->getTeamRankAward($user, null, 4);
+                if($data['reward_flag'] == 0){
+                    $this->getTeamRankAward($user, null, 3);
+                }
+            }
+            return true;
+        }
+    }
+    
+    public function getTeamZanReward()
+    {
+        //cmd=teamqua&op=reward&idx=4&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=46fa3da7cb5dc49fe6b822bc24f61e02&pf=wx2
+    }
+    
+    /**
+     * 领取好友荣耀勋章
+     * @param unknown $user
+     * @param unknown $friuid
+     * @return boolean
+     * @create_time 2018年1月19日
+     */
+    public function getRankAward($user, $friuid=null, $idx=100) {
+        //cmd=qualifying&op=reward&idx=100&friuid=6661917&uid=636428&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=2388ab625144e111dd364b4100149114&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'qualifying';
+        $params['op']             = 'reward';
+        $params['idx']            = $idx;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        if($friuid !== null)$params['friuid']         = $friuid;
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], ($idx == 3 ? '点赞奖励：' : '').$data['msg']);
                 return true;
             }
             return false;
@@ -300,27 +372,28 @@ class QualifyingService extends BaseService
      * @return boolean
      * @create_time 2018年1月19日
      */
-    public function getTeamRankAward($user, $friuid) {
+    public function getTeamRankAward($user, $friuid=null, $idx=100) {
         //cmd=teamqua&op=reward&idx=100&friuid=3777413&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=7bb2c60e84c12f5a49d9a57329be2abf&pf=wx2
         $url = $this->_config->dldUrl->url;
         $params = [];
         $params['cmd']            = 'teamqua';
         $params['op']             = 'reward';
-        $params['idx']            = 100;
-        $params['friuid']         = $friuid;
+        $params['idx']            = $idx;
         $params['uid']            = $user['uid'];
         $params['uin']            = null;
         $params['skey']           = null;
         $params['h5openid']       = $user['h5openid'];
         $params['h5token']        = $user['h5token'];
         $params['pf']             = 'wx2';
+        
+        if($friuid !== null)$params['friuid']         = $friuid;
     
         $result = Curl::dld($url, $params);
         if($result['code'] == 0){
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                Log::dld($user['id'], $data['msg']);
+                Log::dld($user['id'], ($idx == 3 ? '点赞奖励：' : '').$data['msg']);
                 return true;
             }
             return false;
@@ -573,6 +646,8 @@ class QualifyingService extends BaseService
     public function doushenMain($user)
     {
         $this->getDoushenRank($user);
+        $this->getDoushenMoney($user, null, 0);
+        $this->getDoushenMoney($user, null, 1);
     }
     
     public function getDoushenRank($user) {
@@ -611,27 +686,29 @@ class QualifyingService extends BaseService
         }
     }
     
-    public function getDoushenMoney($user, $friuid) {
+    public function getDoushenMoney($user, $friuid=null, $idx=100) {
         //cmd=doushen&op=reward&idx=100&friuid=3469815&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=236efcd907692ceed4b7f05f423c19e7&pf=wx2
         $url = $this->_config->dldUrl->url;
         $params = [];
         $params['cmd']            = 'doushen';
         $params['op']             = 'reward';
-        $params['idx']            = 100;
-        $params['friuid']         = $friuid;
+        $params['idx']            = $idx;
         $params['uid']            = $user['uid'];
         $params['uin']            = null;
         $params['skey']           = null;
         $params['h5openid']       = $user['h5openid'];
         $params['h5token']        = $user['h5token'];
         $params['pf']             = 'wx2';
+        
+        if($friuid !== null)$params['friuid']         = $friuid;
     
         $result = Curl::dld($url, $params);
         if($result['code'] == 0){
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                Log::dld($user['id'], $data['msg']);
+                $name = ($idx == 0 ? '斗神点赞奖励：' : ($idx == 0 ? '斗神分享奖励：' : ''));
+                Log::dld($user['id'], $name.$data['msg']);
                 return true;
             }
             return false;
