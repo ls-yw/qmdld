@@ -638,16 +638,69 @@ class QualifyingService extends BaseService
         }
     }
     
-    public function doushenIndex($user)
-    {
-        //cmd=doushen&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=1faac839ebb280be5a9163e8ddc2de68&pf=wx2
-    }
-    
     public function doushenMain($user)
     {
         $this->getDoushenRank($user);
-        $this->getDoushenMoney($user, null, 0);
-        $this->getDoushenMoney($user, null, 1);
+        $this->doushenIndex($user);
+    }
+    
+    /**
+     * 斗神详情
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年2月8日
+     */
+    public function doushenIndex($user)
+    {
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        //cmd=doushen&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=1faac839ebb280be5a9163e8ddc2de68&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'doushen';
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                foreach ($data['day_award'] as $v){
+                    if($v['flag'] != 1)$this->getDoushenMoney($user, null, $v['idx']);
+                }
+                if($userConfig['qualifying_doushen'] == 1 && $data['free_times'] > 0){
+                    $userInfo = (new UserInfo())->getByUserId($user['id']);
+                    $hasFight = false;
+                    while ($hasFight === false){
+                        $result = (new PvpService())->getFriendList($user, 0);
+                        $duishou = [];
+                        foreach ($result['friendlist'] as $val) {
+                            if($userInfo['attack_power'] - $val['power'] < 4000)continue;  //战斗力不高于4000，则跳过
+                            $duishou = $val;
+                        }
+                        if(!empty($duishou)){
+                            for ($i=0;$i<$data['free_times'];$i++){
+                                $this->doushenFight($user, $duishou['uid']);
+                            }
+                            $hasFight = true;
+                        }
+                    }
+                    
+                    
+                }
+                return true;
+            }else{
+                Log::dld($user['id'], $data['msg']);
+                return false;
+            }
+        }else{
+            return false;
+        }
     }
     
     public function getDoushenRank($user) {
@@ -709,6 +762,42 @@ class QualifyingService extends BaseService
             if($data['result'] == '0'){
                 $name = ($idx == 0 ? '斗神点赞奖励：' : ($idx == 0 ? '斗神分享奖励：' : ''));
                 Log::dld($user['id'], $name.$data['msg']);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+    
+    /**
+     * 斗神挑战
+     * @param unknown $user
+     * @param unknown $friendId
+     * @return boolean
+     * @create_time 2018年2月8日
+     */
+    public function doushenFight($user, $friendId)
+    {
+        //cmd=doushen&op=fight&opp=5624410&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=a76c85d4ffde5477716324fbcd9added&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'doushen';
+        $params['op']             = 'fight';
+        $params['opp']            = $friendId;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $reward = $this->getAwardsName($data['changed']);
+                Log::dld($user['id'], '斗神挑战 '.($data['win'] == 1 ? '成功 ' : '失败').$reward);
                 return true;
             }
             return false;

@@ -30,6 +30,7 @@ class UserController extends BaseController{
         $data['faction_club']              = (int)$this->request->getPost('faction_club', 'int', 0);
         $data['qualifying_person']         = (int)$this->request->getPost('qualifying_person', 'int', 0);
         $data['qualifying_team']           = (int)$this->request->getPost('qualifying_team', 'int', 0);
+        $data['qualifying_doushen']        = (int)$this->request->getPost('qualifying_doushen', 'int', 0);
         $data['hangup_equip']              = (int)$this->request->getPost('hangup_equip', 'int', 0);
         $data['hangup_box']                = (int)$this->request->getPost('hangup_box', 'int', 0);
         $data['hangup_encourage']          = (int)$this->request->getPost('hangup_encourage', 'int', 0);

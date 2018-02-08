@@ -48,6 +48,9 @@ class BaseService{
                         case 'kCavePoint':
                             $val['name'] = '矿洞积分';
                             break;
+                        case 'kDoushenMedal':
+                            $val['name'] = '斗神币';
+                            break;
                         default:
                             $val['name'] = '';
                             break;
