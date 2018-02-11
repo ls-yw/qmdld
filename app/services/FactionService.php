@@ -274,6 +274,8 @@ class FactionService extends BaseService
                         }
                     }
                 }
+                
+                $list['attrStatus']   = (new BasicService())->getBaseStatus($user);
                 return $list;
             }
             return false;

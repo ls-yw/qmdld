@@ -216,7 +216,7 @@ class OtherService extends BaseService
                     if($val['type'] == 5){  //技能
                         $attr['skill']['total']  = count($val['attrs']);
                         $attr['skill']['unlock'] = 0;
-                        $attr['skill']['lock']   = 0;
+                        $attr['skill']['get']   = 0;
                         foreach ($val['attrs'] as $v){
                             if($v['status'] != 0){
                                 $attr['skill']['get']++;

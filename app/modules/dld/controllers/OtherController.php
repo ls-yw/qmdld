@@ -4,6 +4,7 @@ namespace Modules\Dld\Controllers;
 use Basic\BaseController;
 use Services\OtherService;
 use Services\GoodsService;
+use Services\BasicService;
 
 class OtherController extends BaseController
 {
@@ -61,5 +62,20 @@ class OtherController extends BaseController
         }else{
             return $this->ajaxReturn('', 1, '兑换失败');
         }
+    }
+    
+    /**
+     * 开启属性
+     * 
+     * @create_time 2018年2月11日
+     */
+    public function addStatusAction()
+    {
+        $id = $this->request->getPost('id');
+        if(empty($id))return $this->ajaxReturn('', 1, '参数错误');
+        
+        $row = (new BasicService())->useGood($this->_user, ($id+10));
+        
+        return $this->ajaxReturn($id, 0, '成功');
     }
 }

@@ -398,6 +398,21 @@ class BasicService extends BaseService
     }
     
     /**
+     * 获取基本属性状态
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年2月11日
+     */
+    public function getBaseStatus($user)
+    {
+        $lists = $this->getStatus($user);
+        foreach ($lists as $key => $list){
+            if(!in_array($list['shop_id'], [100011, 100012, 100013, 100014]))unset($lists[$key]);
+        }
+        return $lists;
+    }
+    
+    /**
      * 使用商品
      * @param unknown $user
      * @param unknown $id

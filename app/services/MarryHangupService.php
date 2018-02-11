@@ -130,7 +130,7 @@ class MarryHangupService extends BaseService
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
                 Log::dld($user['id'], $data['msg']);
-                return true;
+                return $data['bag'];
             }else{
                 return false;
             }
@@ -309,6 +309,9 @@ class MarryHangupService extends BaseService
      * @create_time 2018年1月24日
      */
     private function _dealEquip($user, $bag) {
+        if(!is_array($bag)){
+            Log::dld($user['id'], '错误啦，不是数组：'.json_encode($bag));
+        }
         $newBag = [];
         $arr1 = current($bag);
         if($arr1['cansend'] == 0 && $arr1['canequip'] == 0){

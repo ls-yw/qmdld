@@ -85,7 +85,7 @@ function goLogin()
 			$('#index .loginForm').hide();
 			$('#index .userInfo').show();
 			//加载日志
-			window.setInterval('getLog()',3000);
+			getLog();
 			getConfig();
 		}else{
 			alert(result.msg);
@@ -176,6 +176,7 @@ function getLog()
 {
 	$.post("/index/log/current",function(result){
 		if(result.code == 0){
+			setTimeout('getLog()', 3000);
 			$('#index .logs').html(result.data);
 		}else{
 			$('#index .logs').html('日志获取失败');
