@@ -595,6 +595,27 @@ class QualifyingService extends BaseService
     
     }
     
+    public function bugDoushenGoods($user, $goods) {
+        $shop = (new GoodsService())->doushen($user);
+        $goods = explode(',', $goods);
+        $prevNum = 0;
+        foreach ($goods as $val){
+            foreach($shop['goods'] as $v){
+                if($val == $v['id']){
+                    if($v['remain'] > 0 && $prevNum == 0){
+                        $num = 0;
+                        for ($i=1;$i<=$v['remain'];$i++){
+                            if($v['price'] * $i <= $shop['doushen_medal'])$num = $i;
+                        }
+                        if($num == 0)return false;
+                        $res = $this->bug($user, $val, $num, $v['price']*$num);
+                        $prevNum = $res ? $v['remain'] - $num : $v['remain'];
+                    }
+                }
+            }
+        }
+    }
+    
     /**
      * 购买
      * @param unknown $user
@@ -627,7 +648,7 @@ class QualifyingService extends BaseService
             if($data['result'] == '0'){
                 unset($data['changed']['attrs']);
                 $awards = $this->getAwardsName($data['changed']);
-                Log::dld($user['id'], "王者商店购买了 {$awards}");
+                Log::dld($user['id'], "商店购买了 {$awards}");
                 return true;
             }else{
                 Log::dld($user['id'], $data['msg']);
@@ -641,7 +662,55 @@ class QualifyingService extends BaseService
     public function doushenMain($user)
     {
         $this->getDoushenRank($user);
-        $this->doushenIndex($user);
+        
+        $userConfig = (new UserService())->getUserConfig($user['id']);
+        if($userConfig['qualifying_doushen'] == 1){
+            $indexData = $this->doushenIndex($user);
+            (new UserInfo())->updateData(['doushen'=>$indexData['self_rank']], ['user_id'=>$user['id']]);
+            Log::dld($user['id'], '当前斗神排名：'.$indexData['self_rank'].' 还剩余 '.$indexData['free_times'].'次');
+            foreach ($indexData['day_award'] as $v){
+                if($v['flag'] != 1)$this->getDoushenMoney($user, null, $v['idx']);
+            }
+            if($indexData['free_times'] > 0){
+                $userInfo = (new UserInfo())->getByUserId($user['id']);
+                if($userConfig['qualifying_doushen_type'] == 1){
+                    $hasFight = false;
+                    while ($hasFight === false){
+                        $result = (new PvpService())->getFriendList($user, 0);
+                        $duishou = [];
+                        foreach ($result['friendlist'] as $val) {
+                            if($userInfo['attack_power'] - $val['power'] < 5000)continue;  //战斗力不高于4000，则跳过
+                            $duishou = $val;
+                        }
+                        if(!empty($duishou)){
+                            for ($i=0;$i<$indexData['free_times'];$i++){
+                                $this->doushenFight($user, $duishou['uid']);
+                            }
+                            $hasFight = true;
+                        }
+                    }
+                }elseif ($userConfig['qualifying_doushen_type'] == 0){
+                    $isFight = false;
+                    foreach ($indexData['oppinfo'] as $ulist) {
+                        if($ulist['rank'] < $indexData['self_rank'] && ($userInfo['attack_power'] - $ulist['attack_power']) >= 2000 && $ulist['vip_level'] < 3){
+                            $this->doushenFight($user, $ulist['uid']);
+                            $isFight = true;
+                        }
+                    }
+                    while ($isFight === false){
+                        $nData = $this->doushenIndex($user);
+                        foreach ($nData['oppinfo'] as $ulist) {
+                            if($ulist['rank'] < $nData['self_rank'] && ($userInfo['attack_power'] - $ulist['attack_power']) >= 2000 && $ulist['vip_level'] < 3){
+                                $this->doushenFight($user, $ulist['uid']);
+                                $isFight = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if(!empty($userConfig['doushen_shop']))$this->bugDoushenGoods($user, $userConfig['doushen_shop']);
     }
     
     /**
@@ -652,7 +721,6 @@ class QualifyingService extends BaseService
      */
     public function doushenIndex($user)
     {
-        $userConfig = (new UserService())->getUserConfig($user['id']);
         //cmd=doushen&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=1faac839ebb280be5a9163e8ddc2de68&pf=wx2
         $url = $this->_config->dldUrl->url;
         $params = [];
@@ -670,30 +738,7 @@ class QualifyingService extends BaseService
             $data = $result['data'];
             $this->dealResult($data, $user['id']);
             if($data['result'] == '0'){
-                foreach ($data['day_award'] as $v){
-                    if($v['flag'] != 1)$this->getDoushenMoney($user, null, $v['idx']);
-                }
-                if($userConfig['qualifying_doushen'] == 1 && $data['free_times'] > 0){
-                    $userInfo = (new UserInfo())->getByUserId($user['id']);
-                    $hasFight = false;
-                    while ($hasFight === false){
-                        $result = (new PvpService())->getFriendList($user, 0);
-                        $duishou = [];
-                        foreach ($result['friendlist'] as $val) {
-                            if($userInfo['attack_power'] - $val['power'] < 4000)continue;  //战斗力不高于4000，则跳过
-                            $duishou = $val;
-                        }
-                        if(!empty($duishou)){
-                            for ($i=0;$i<$data['free_times'];$i++){
-                                $this->doushenFight($user, $duishou['uid']);
-                            }
-                            $hasFight = true;
-                        }
-                    }
-                    
-                    
-                }
-                return true;
+                return $data;
             }else{
                 Log::dld($user['id'], $data['msg']);
                 return false;
@@ -798,6 +843,14 @@ class QualifyingService extends BaseService
             if($data['result'] == '0'){
                 $reward = $this->getAwardsName($data['changed']);
                 Log::dld($user['id'], '斗神挑战 '.($data['win'] == 1 ? '成功 ' : '失败').$reward);
+                if($data['win'] == 1){
+                    $ddd = $this->doushenIndex($user);
+                    (new UserInfo())->updateData(['doushen'=>$ddd['self_rank']], ['user_id'=>$user['id']]);
+                    Log::dld($user['id'], '当前斗神排名：'.$ddd['self_rank'].' 还剩余 '.$ddd['free_times'].'次');
+                }
+                return true;
+            }else{
+                Log::dld($user['id'], $data['msg']);
                 return true;
             }
             return false;

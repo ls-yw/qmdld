@@ -50,4 +50,15 @@ class TowerController extends BaseController
             return $this->ajaxReturn('', 0 ,'设置失败');
         }
     }
+    
+    public function reviveAction()
+    {
+        if(!$this->_user || empty($this->_user['h5token']))return $this->ajaxReturn(['code'=>1, 'msg'=>'未登录或未授权']);
+        $row = (new TowerService())->buylife($this->_user);
+        if($row){
+            return $this->ajaxReturn('', 0 ,'复活成功');
+        }else{
+            return $this->ajaxReturn('', 0 ,'复活失败');
+        }
+    }
 }

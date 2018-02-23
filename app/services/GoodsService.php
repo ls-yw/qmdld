@@ -11,7 +11,7 @@ class GoodsService extends BaseService
 {
     public function updateShops($user)
     {
-        $shops = ['pvp', 'servant', 'qualifying'];
+        $shops = ['pvp', 'servant', 'qualifying', 'doushen'];
         foreach ($shops as $val){
             $info = $this->getShopInfo($val);
             if($info && $info['update_date'] == date('Y-m-d'))continue;
@@ -35,7 +35,7 @@ class GoodsService extends BaseService
      */
     public function updateGoods($user)
     {
-        $shops = ['pvp', 'servant', 'qualifying', 'mall'];
+        $shops = ['pvp', 'servant', 'qualifying', 'mall', 'doushen'];
         foreach ($shops as $val){
             $shop = $this->{$val}($user);
         
@@ -104,6 +104,18 @@ class GoodsService extends BaseService
     {
         //cmd=shop&shoptype=1&needreload=1&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=747aaf214f06c60478c5bf821ccb4320&pf=wx2
         return $this->shopCurl($user, 1, 'doudou', 1);
+    }
+    
+    /**
+     * 斗神商城
+     * @param unknown $user
+     * @return boolean|unknown[]
+     * @create_time 2018年2月23日
+     */
+    public function doushen($user)
+    {
+        //cmd=shop&shoptype=8&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=d83c2b21af6d712ffb6befec6e0450f0&pf=wx2
+        return $this->shopCurl($user, 8, 'doushen_medal');
     }
     
     public function shopCurl($user, $shoptype, $currency, $needreload='') {

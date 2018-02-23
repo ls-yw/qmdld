@@ -31,6 +31,7 @@ class UserController extends BaseController{
         $data['qualifying_person']         = (int)$this->request->getPost('qualifying_person', 'int', 0);
         $data['qualifying_team']           = (int)$this->request->getPost('qualifying_team', 'int', 0);
         $data['qualifying_doushen']        = (int)$this->request->getPost('qualifying_doushen', 'int', 0);
+        $data['qualifying_doushen_type']   = (int)$this->request->getPost('qualifying_doushen_type', 'int', 0);
         $data['hangup_equip']              = (int)$this->request->getPost('hangup_equip', 'int', 0);
         $data['hangup_box']                = (int)$this->request->getPost('hangup_box', 'int', 0);
         $data['hangup_encourage']          = (int)$this->request->getPost('hangup_encourage', 'int', 0);
@@ -46,9 +47,11 @@ class UserController extends BaseController{
         $pvpShop                         = $this->request->getPost('pvp_shop');
         $servantShop                     = $this->request->getPost('servant_shop');
         $qualifyingShop                  = $this->request->getPost('qualifying_shop');
+        $doushenShop                     = $this->request->getPost('doushen_shop');
         $data['pvp_shop']                = !empty($pvpShop) ? implode(',', $pvpShop) : '';
         $data['servant_shop']            = !empty($servantShop) ? implode(',', $servantShop) : '';
         $data['qualifying_shop']         = !empty($qualifyingShop) ? implode(',', $qualifyingShop) : '';
+        $data['doushen_shop']            = !empty($doushenShop) ? implode(',', $doushenShop) : '';
         
         $lilianHeroGoods                         = $this->request->getPost('lilian_hero_ordinary_goods');
         $data['lilian_hero_ordinary_goods']      = !empty($lilianHeroGoods) ? implode(',', $lilianHeroGoods) : '';

@@ -77,8 +77,8 @@
 		                 </div>
 		                 <div class="row">
                              <div class="col-md-4">排位：<span class="qualifying"></span></div>
-		                     <div class="col-md-4">荣耀币：<span class="king_medal"></span></div>
-		                     <div class="col-md-4">免费次数：<span class="qualifying_num"></span></div>
+		                     <div class="col-md-4">次数：<span class="qualifying_num"></span></div>
+		                     <div class="col-md-4">斗神：<span class="doushen"></span></div>
 		                 </div>
 		                 <div class="row">
                              <div class="col-md-4">历练次数：<span class="lilian_num"></span></div>
@@ -168,7 +168,7 @@
 		      <tr>
 		      <tr>
 		          <th>王者争霸</th>
-		          <td>
+		          <td class="form-inline">
 		             <label class="checkbox-inline">
                       <input type="checkbox" id="qualifying_person" name="qualifying_person" class="qualifying_person" value="1"> 个人
                     </label>
@@ -176,8 +176,14 @@
                       <input type="checkbox" id="qualifying_team" name="qualifying_team" class="qualifying_team" value="1"> 团队
                     </label>
                     <label class="checkbox-inline">
-                      <input type="checkbox" id="qualifying_doushen" name="qualifying_doushen" class="qualifying_doushen" value="1"> 斗神
+                      <input type="checkbox" id="qualifying_doushen" name="qualifying_doushen" class="qualifying_doushen" value="1"> 斗神 
                     </label>
+                    <div class="form-group">
+                        <select class="form-control qualifying_doushen_type" data-type="select" name="qualifying_doushen_type" id="qualifying_doushen_type">
+                          <option value="0">爬榜</option>
+                          <option value="1">胜利</option>
+                        </select>
+                    </div>
 		          </td>
 		      <tr>
 		      <tr>
@@ -251,6 +257,12 @@
 		          <th width="100">王者商店</th>
 		          <td class="form-inline">
 		             <select class="qualifying_shop chosen" id="qualifying_shop" name="qualifying_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th width="100">斗神商店</th>
+		          <td class="form-inline">
+		             <select class="doushen_shop chosen" id="doushen_shop" name="doushen_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
 		          </td>
 		      <tr>
             </table>

@@ -88,12 +88,12 @@ function getConfig()
 {
 	$.post("/index/user/getConfig",function(result){
 		if(result.code == 0){
-			var shops = new Array('pvp_shop', 'servant_shop', 'qualifying_shop', 'lilian_hero_ordinary_goods');
+			var shops = new Array('pvp_shop', 'servant_shop', 'qualifying_shop', 'lilian_hero_ordinary_goods', 'doushen_shop');
 			var selects = new Array('lilian_ordinary_type', 'lilian_hero_ordinary_type');
 			for(i in result.data){
-				if($.inArray(i, selects) >= 0){
+				if($('#configForm .'+i).data('type') == 'select' || $.inArray(i, selects) >= 0){
 					$('#configForm .'+i).val(result.data[i]);
-				}else if($.inArray(i, shops) >= 0 && result.data[i] != ''){
+				}else if(($('#configForm .'+i).data('type') == 'shop' || $.inArray(i, shops) >= 0) && result.data[i] != ''){
 					good_ids =result.data[i].split(","); //字符分割 
 					for (j=0;j<good_ids.length ;j++ )
 					{
@@ -278,6 +278,15 @@ $('body').on('click', '.saveAttrDian', function(){
 		}
 	},'json');
 });
+$('body').on('click', '#tower-revive', function(){
+	$.post("/dld/tower/revive",function(res){
+		if(res.code == 0){
+			updateTower();
+		}else{
+			alert(res.msg);
+		}
+	},'json');
+});
 function updateTower()
 {
 	dialog({id: 'dialog'}).content('加载中...');
@@ -289,7 +298,7 @@ function updateTower()
 			html += '<div class="col-md-2">坚固：'+res.data.status[300032].num+' <input type="text" style="width:30px;" class="status-f" data-key="jg" data-id="'+res.data.status[300032].id+'" value="'+res.data.status[300032].num+'"/></div>';
 			html += '<div class="col-md-2">急速：'+res.data.status[300033].num+' <input type="text" style="width:30px;" class="status-f" data-key="js" data-id="'+res.data.status[300033].id+'" value="'+res.data.status[300033].num+'"/></div>';
 			html += '<div class="col-md-2 '+(res.data.status[0] > 0 ? 'green' : 'gray')+'">剩余：'+res.data.status[0]+' <button type="button" class="saveAttrDian" data-max="'+res.data.maxStatus+'">确定</button></div>';
-			html += '<div class="col-md-2">复活次数：'+res.data.revive+'</div>';
+			html += '<div class="col-md-2">复活次数：'+res.data.revive+(parseInt(res.data.revive) > 0 && res.data.alive == 0 ? ' <button type="button" id="tower-revive" ">复活</button>' : '')+'</div>';
 			html += '</div>';
 			html += '<div class="row" style="margin-top:5px;">';
 			for(var k in res.data.attrStatus){
@@ -306,7 +315,7 @@ function updateTower()
 				for(var j in res.data.monster[i].buffList){
 					html += '<li class="red">'+res.data.monster[i].buffList[j].name+'：'+res.data.monster[i].buffList[j].desc+'</li>';
 				}
-				html += '<li>'+(res.data.monster[i].status != 0 ? '已击败' : '<button type="button" class="tower-fight" data-index="'+res.data.monster[i].index+'" data-floor="'+res.data.floor+'">挑战</button>')+'</li>';
+				html += '<li>'+(res.data.alive == 0 ? '待复活' : (res.data.monster[i].status != 0 ? '已击败' : '<button type="button" class="tower-fight" data-index="'+res.data.monster[i].index+'" data-floor="'+res.data.floor+'">挑战</button>'))+'</li>';
 				html += '</ul>';
 				html += '</div>';
 			}

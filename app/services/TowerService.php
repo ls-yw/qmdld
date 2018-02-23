@@ -46,6 +46,7 @@ class TowerService extends BaseService
                 $info['monster']      = $data['monsterInfo'];
                 $info['attrStatus']   = (new BasicService())->getBaseStatus($user);
                 $info['floor']        = $data['baseInfo']['layer'].'-'.$data['baseInfo']['barrier'];
+                $info['alive']        = $data['baseInfo']['alive'];
                 return $info;
             }else{
                 return false;
@@ -165,4 +166,42 @@ class TowerService extends BaseService
         }
     }
     
+    /**
+     * 复活
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年2月12日
+     */
+    public function buylife($user)
+    {
+        //cmd=tower&op=buylife&type=free&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=f64aa3e87b8149ee1204598bbc7f5701&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'tower';
+        $params['op']             = 'buylife';
+        $params['type']           = 'free';
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                if($data['baseInfo']['alive'] == 1){
+                    Log::dld($user['id'], "复活成功");
+                    return true;
+                }
+                return false;
+            }else{
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
 }

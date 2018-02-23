@@ -406,6 +406,7 @@ class BasicService extends BaseService
     public function getBaseStatus($user)
     {
         $lists = $this->getStatus($user);
+        if($lists === false)return false;
         foreach ($lists as $key => $list){
             if(!in_array($list['shop_id'], [100011, 100012, 100013, 100014]))unset($lists[$key]);
         }

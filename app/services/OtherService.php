@@ -449,4 +449,41 @@ class OtherService extends BaseService
         }
         return false;
     }
+    
+    /**
+     * 保卫乐斗村
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年2月23日
+     */
+    public function village($user)
+    {
+        //cmd=village&op=report&opp=6084512&gid=100000&weight=517&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=178c07a6117d5c7d7139a46db7456f4c&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'village';
+        $params['op']             = 'report';
+        $params['opp']            = $user['uid'];
+        $params['gid']            = 100000;
+        $params['weight']         = mt_rand(80001, 199999);
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                Log::dld($user['id'], "保卫乐斗村成功，造成".$params['weight'].'点伤害');
+                return true;
+            }else{
+                Log::dld($user['id'], $data['msg']);
+            }
+        }
+        return false;
+    }
 }

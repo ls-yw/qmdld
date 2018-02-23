@@ -12,6 +12,7 @@ use Services\FactionService;
 use Services\QualifyingService;
 use Services\MarryHangupService;
 use Services\TowerService;
+use Services\OtherService;
 
 class KeepTask extends BaseTask
 {
@@ -81,6 +82,9 @@ class KeepTask extends BaseTask
         
         //千层塔
         $this->tower($user);
+        
+        //保卫乐斗村
+        $this->village($user);
         
         Redis::getInstance()->del($lockKey);
     }
@@ -328,6 +332,30 @@ class KeepTask extends BaseTask
         }
     
         (new TowerService())->main($user);
+    
+        Redis::getInstance()->setex($key, 86400, time());
+    }
+    
+    /**
+     * 保卫乐斗村   俩小时执行一次
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年1月18日
+     */
+    public function village($user)
+    {
+        $limitTime = 7200;
+        echo 'running village'.$user['id'].PHP_EOL;
+        $key = 'village_time_'.$user['id'];
+        if(Redis::getInstance()->exists($key)){
+            $prevTime = Redis::getInstance()->get($key);
+            if(time() - $prevTime <= $limitTime){
+                echo 'village 未到 '.$user['id'].' 还差'.($limitTime - (time() - $prevTime)).'秒'.PHP_EOL;
+                return false;
+            }
+        }
+    
+        (new OtherService())->village($user);
     
         Redis::getInstance()->setex($key, 86400, time());
     }
