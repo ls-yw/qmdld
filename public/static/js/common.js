@@ -46,6 +46,7 @@ function getUserInfo()
 			$('.userInfo .unlock_scene').text(result.data.unlock_scene);
 			$('.userInfo .unlock_weapon').text(result.data.unlock_weapon);
 			$('.userInfo .unlock_skill').text(result.data.unlock_skill);
+			$('.userInfo .doushen').text(result.data.doushen);
 			
 			(result.data.unlock_page == '120/120') ? $('.unlockPage').hide() : $('.unlockPage').show();
 			(result.data.unlock_scene == '17/17') ? $('.unlockScene').hide() : $('.unlockScene').show();

@@ -12,6 +12,7 @@ class GoodsService extends BaseService
     public function updateShops($user)
     {
         $shops = ['pvp', 'servant', 'qualifying', 'doushen'];
+        
         foreach ($shops as $val){
             $info = $this->getShopInfo($val);
             if($info && $info['update_date'] == date('Y-m-d'))continue;
@@ -58,7 +59,7 @@ class GoodsService extends BaseService
         $key = 'shop_goods_'.$mark;
         if(!Redis::getInstance()->exists($key)){
             $info = (new Shops())->getByMark($mark);
-            Redis::getInstance()->setex($key, 86400, json_encode($info));
+            Redis::getInstance()->setex($key, 3600, json_encode($info));
         }
         $info = Redis::getInstance()->get($key);
         return $info ? json_decode($info, true) : '';

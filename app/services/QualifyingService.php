@@ -699,6 +699,7 @@ class QualifyingService extends BaseService
                     }
                     while ($isFight === false){
                         $nData = $this->doushenIndex($user);
+                        if($nData === false)return false;
                         foreach ($nData['oppinfo'] as $ulist) {
                             if($ulist['rank'] < $nData['self_rank'] && ($userInfo['attack_power'] - $ulist['attack_power']) >= 2000 && $ulist['vip_level'] < 3){
                                 $this->doushenFight($user, $ulist['uid']);
