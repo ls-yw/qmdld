@@ -18,6 +18,8 @@ class GoodsService extends BaseService
             if($info && $info['update_date'] == date('Y-m-d'))continue;
             $shop = $this->{$val}($user);
             
+            if(!$shop || !isset($shop['goods']) || empty($shop['goods']))continue;
+            
             $key = 'shop_goods_'.$val;
             $data = ['mark'=>$val, 'goods'=>json_encode($shop['goods'], JSON_UNESCAPED_UNICODE), 'update_date'=>date('Y-m-d')];
             if($info){

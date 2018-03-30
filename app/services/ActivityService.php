@@ -42,6 +42,7 @@ class ActivityService extends BaseService
                         if($val['id'] == 9)$this->drawLotIndex($user);
                         if($val['id'] == 10)$this->farmIndex($user);
                         if($val['id'] == 8)$this->startGame($user);
+                        if($val['id'] == 74)$this->zhaomu($user);
                     }
                 }
             }else{
@@ -511,6 +512,76 @@ class ActivityService extends BaseService
             if($data['result'] == '0'){
                 $arawds = $this->getAwardsName($data['award']);
                 Log::dld($user['id'], "领取开工福利：{$arawds}");
+            }else{
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
+    
+    /**
+     * 招募斗友
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年3月30日
+     */
+    public function zhaomu($user)
+    {
+        //cmd=activity&aid=74&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=c26f0753e80484ed47aa974e50e31253&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'activity';
+        $params['aid']            = 74;
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                if($data['share_gift']['state'] == 1)$this->zhaomuShare($user);
+            }else{
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
+    
+    /**
+     * 招募斗友分享
+     * @param unknown $user
+     * @return boolean
+     * @create_time 2018年3月30日
+     */
+    public function zhaomuShare($user)
+    {
+        //cmd=activity&aid=74&subcmd=get_share_award&uid=6084512&uin=null&skey=null&h5openid=oKIwA0eHZyXEDaUICvhtyE8EJuts&h5token=c26f0753e80484ed47aa974e50e31253&pf=wx2
+        $url = $this->_config->dldUrl->url;
+        $params = [];
+        $params['cmd']            = 'activity';
+        $params['aid']            = 74;
+        $params['subcmd']         = 'get_share_award';
+        $params['uid']            = $user['uid'];
+        $params['uin']            = null;
+        $params['skey']           = null;
+        $params['h5openid']       = $user['h5openid'];
+        $params['h5token']        = $user['h5token'];
+        $params['pf']             = 'wx2';
+        
+        $result = Curl::dld($url, $params);
+        if($result['code'] == 0){
+            $data = $result['data'];
+            $this->dealResult($data, $user['id']);
+            if($data['result'] == '0'){
+                $arawds = $this->getAwardsName($data['award']);
+                Log::dld($user['id'], "领取斗友招募计划分享奖励：{$arawds}");
             }else{
                 return false;
             }
