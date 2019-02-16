@@ -48,11 +48,11 @@ class Log
     public static function dld(int $uid, $message, $mark='') {
         if(is_array($message) || is_object($message))$message = json_encode($message, JSON_UNESCAPED_UNICODE);
     
-        $logPath = DI::getDefault()->get('config')->application->actionDir.$uid.'/dld';
+        $logPath = DI::getDefault()->get('config')->application->actionDir.$uid.'/';
         self::directory($logPath);
     
         //文件名
-        $fileName = date('Ymd').'.log';
+        $fileName = 'dld'.date('Ymd').'.log';
         $file = $logPath.$fileName;
     
         $message = date('Y-m-d H:i:s').(!empty($mark) ? " 【{$mark}】" : '')." {$message}\r\n";
@@ -71,11 +71,11 @@ class Log
     public static function zyhx(int $uid, $message, $mark='') {
         if(is_array($message) || is_object($message))$message = json_encode($message, JSON_UNESCAPED_UNICODE);
     
-        $logPath = DI::getDefault()->get('config')->application->actionDir.$uid.'/zyhx';
+        $logPath = DI::getDefault()->get('config')->application->actionDir.$uid.'/';
         self::directory($logPath);
     
         //文件名
-        $fileName = date('Ymd').'.log';
+        $fileName = 'zyhx'.date('Ymd').'.log';
         $file = $logPath.$fileName;
     
         $message = date('Y-m-d H:i:s').(!empty($mark) ? " 【{$mark}】" : '')." {$message}\r\n";
