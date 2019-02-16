@@ -12,8 +12,9 @@ class BaseService{
 
 	#初始化
 	public function __construct(){
+	    
         $this->_config = DI::getDefault()->get('config');
-        $this->_user = DI::getDefault()->get('session')->get('user');
+//         $this->_user = DI::getDefault()->get('session')->get('user');
 	}
 
 	protected function dealResult($result, $user_id) {

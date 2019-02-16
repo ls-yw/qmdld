@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link href="/plugins/bootstrap/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/base.css" rel="stylesheet">
+<link href="/plugins/chosen/chosen.css" rel="stylesheet">
+<script src="/static/js/jquery.min.js"></script>
+</head>
+<body id="main">
+	<div class="container" id="index">
+		<div class="row border-bottom">
+    		  <div class="loginForm row">
+    	         <div class="col-md-12 form-horizontal">
+    	             <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-10">
+                          <input type="user_name" class="form-control" id="user_name" placeholder="用户名">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                          <button type="button" class="btn btn-default" onclick="goLogin();">登录</button>
+                        </div>
+                      </div>
+    	         </div>
+    	     </div>
+    	     <div class="userInfo row" style="display: none;">
+        			<div class="col-md-6 border-right">
+    			         <div class="row">
+    			             <div class="col-md-4"><img class="headimgurl" src="" width="98%"/></div>
+    			             <div class="col-md-8">
+    			                 <div class="row">
+    			                     <div class="col-md-6">姓名：<span class="name"></span></div>
+    			                     <div class="col-md-6">等级：<span class="lvl"></span></div>
+    			                 </div>
+    			                 <div class="row">
+    			                     <div class="col-md-6">uid：<span class="uid"></span></div>
+    			                     <div class="col-md-6">VIP：<span class="vip_lvl"></span></div>
+    			                 </div>
+    			                 <div class="row">
+    			                     <div class="col-md-6">战斗力：<span class="attack_power"></span></div>
+    			                     <div class="col-md-6">性别：<span class="sex"></span></div>
+    			                 </div>
+    			                 <div class="row">
+    			                     <div class="col-md-6">经验：<span class="exp"></span></div>
+    			                     <div class="col-md-6">能量：<span class="vit"></span></div>
+    			                 </div>
+    			                 <div class="row">
+    			                     <div class="col-md-9"><span class="h5token"></span></div>
+    			                     <div class="col-md-3"><button type="button" class="editToken">修改</button></div>
+    			                 </div>
+    			                 <div class="row">
+    			                     <div class="col-md-4"><button type="button" onclick="refreshUserInfo();">刷新信息</button></div>
+    			                     <div class="col-md-4"><button type="button" onclick="exchangeCode();">兑换码</button></div>
+    			                     <div class="col-md-4"><button type="button" onclick="logout();">退出</button></div>
+    			                 </div>
+    			             </div>
+    			         </div>
+        			</div>
+        			<div class="col-md-6">
+        			     <div class="row">
+		                     <div class="col-md-4">斗币：<span class="doubi_num"></span></div>
+		                     <div class="col-md-4">斗鱼币：<span class="douyu_num"></span></div>
+		                     <div class="col-md-4">家财：<span class="servant_cash"></span></div>
+		                 </div>
+		                 <div class="row">
+		                     <div class="col-md-4">威望：<span class="prestige"></span></div>
+		                     <div class="col-md-4">修为池：<span class="spirit"></span></div>
+		                     <div class="col-md-4">婚姻：<span class="marry_status"></span></div>
+		                 </div>
+                         <div class="row">
+		                     <div class="col-md-4">帮派ID：<span class="fac_id"></span></div>
+		                     <div class="col-md-4">帮派名称：<span class="fac_name"></span></div>
+		                     <div class="col-md-4">帮派洞穴：<span class="fac_cave"></span> <button type="button" class="view_fac_cave">查看</button></div>
+		                 </div>
+		                 <div class="row">
+                             <div class="col-md-4">排位：<span class="qualifying"></span></div>
+		                     <div class="col-md-4">次数：<span class="qualifying_num"></span></div>
+		                     <div class="col-md-4">斗神：<span class="doushen"></span></div>
+		                 </div>
+		                 <div class="row">
+                             <div class="col-md-4">历练次数：<span class="lilian_num"></span></div>
+		                     <div class="col-md-4">英雄历练次数：<span class="hero_lilian_num"></span></div>
+		                     <div class="col-md-4">千层塔：<span class="tower"></span> <button type="button" class="view_tower">查看</button></div>
+		                 </div>
+        			</div>
+			</div>
+		</div>
+		<div class="row border-bottom config">
+		<form id="configForm">
+		  <table>
+		      <tr>
+		          <th width="100">PVP</th>
+		          <td>
+		              <label class="checkbox-inline">
+                          <input type="checkbox" id="pvp_auto" name="pvp_auto" class="pvp_auto" value="1"> 自动战斗
+                        </label>
+                        <label class="checkbox-inline">
+                          <input type="checkbox" id="pvp_potion" name="pvp_potion" class="pvp_potion" value="1"> 使用体力药水
+                        </label>
+                        <label class="checkbox-inline">
+                          <input type="checkbox" id="pvp_friend_vit" name="pvp_friend_vit" class="pvp_friend_vit" value="1"> 赠送领取好友体力
+                        </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>经脉</th>
+		          <td>
+		              <label class="checkbox-inline">
+                      <input type="checkbox" id="meridian_auto" name="meridian_auto" class="meridian_auto" value="1"> 自动造访
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="meridian_flag" name="meridian_flag" class="meridian_flag" value="1"> 使用威望旗
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="meridian_reward" name="meridian_reward" class="meridian_reward" value="1"> 使用雪莲
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>师徒</th>
+		          <td>
+		              <label class="checkbox-inline">
+                          <input type="checkbox" id="master_auto" name="master_auto" class="master_auto" value="1"> 敬茶/解惑
+                        </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>家丁</th>
+		          <td>
+		              <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_auto" name="servant_auto" class="servant_auto" value="1"> 收家财
+                      </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_catch" name="servant_catch" class="servant_catch" value="1"> 捕捉
+                      </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_train" name="servant_train" class="servant_train" value="1"> 训练
+                      </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_rob" name="servant_rob" class="servant_rob" value="1"> 捣乱
+                      </label>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" id="servant_release" name="servant_release" class="servant_release" value="1"> 释放
+                      </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>帮派</th>
+		          <td>
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="faction_auto" name="faction_auto" class="faction_auto" value="1"> 捐献
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="faction_club" name="faction_club" class="faction_club" value="1"> 武馆
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>王者争霸</th>
+		          <td class="form-inline">
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="qualifying_person" name="qualifying_person" class="qualifying_person" value="1"> 个人
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="qualifying_team" name="qualifying_team" class="qualifying_team" value="1"> 团队
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="qualifying_doushen" name="qualifying_doushen" class="qualifying_doushen" value="1"> 斗神 
+                    </label>
+                    <div class="form-group">
+                        <select class="form-control qualifying_doushen_type" data-type="select" name="qualifying_doushen_type" id="qualifying_doushen_type">
+                          <option value="0">爬榜</option>
+                          <option value="1">胜利</option>
+                        </select>
+                    </div>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>游历</th>
+		          <td>
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_equip" name="hangup_equip" class="hangup_equip" value="1"> 熔炼装备
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_box" name="hangup_box" class="hangup_box" value="1"> 解锁宝箱
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_encourage" name="hangup_encourage" class="hangup_encourage" value="1"> 互动
+                    </label>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="hangup_fight" name="hangup_fight" class="hangup_fight" value="1"> 挑战
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>历练</th>
+		          <td class="form-inline">
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="lilian_ordinary" name="lilian_ordinary" class="lilian_ordinary" value="1"> 自动历练
+                    </label>
+                    <div class="form-group">
+                        <select class="form-control lilian_ordinary_type" name="lilian_ordinary_type" id="lilian_ordinary_type">
+                          <option value="1">爬楼</option>
+                          <option value="2">经验</option>
+                          <option value="3">满星</option>
+                        </select>
+                    </div>
+                    <label class="checkbox-inline">
+                      <input type="checkbox" id="lilian_used" name="lilian_used" class="lilian_used" value="1"> 使用令牌
+                    </label>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th>英雄历练</th>
+		          <td class="form-inline">
+		             <label class="checkbox-inline">
+                      <input type="checkbox" id="lilian_hero_ordinary" name="lilian_hero_ordinary" class="lilian_hero_ordinary" value="1"> 自动历练
+                    </label>
+                    <div class="form-group">
+                        <select class="form-control lilian_hero_ordinary_type" name="lilian_hero_ordinary_type" id="lilian_hero_ordinary_type">
+                          <option value="1">爬楼</option>
+                          <option value="2">物品</option>
+                          <option value="3">满星</option>
+                        </select>
+                    </div>
+                    <div style="display:inline-block;width:500px;">
+                      <select class="lilian_hero_ordinary_goods chosen" id="lilian_hero_ordinary_goods" name="lilian_hero_ordinary_goods[]" multiple="multiple" max=4 placeholder="请选择想要获得的物品"></select>
+                    </div>
+		          </td>
+		      <tr>
+		  </table>
+            <table width="100%">
+                <tr>
+		          <th width="100">胜点商店</th>
+		          <td class="form-inline">
+		             <select class="pvp_shop chosen" id="pvp_shop" name="pvp_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th width="100">家财商店</th>
+		          <td class="form-inline">
+		             <select class="servant_shop chosen" id="servant_shop" name="servant_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th width="100">王者商店</th>
+		          <td class="form-inline">
+		             <select class="qualifying_shop chosen" id="qualifying_shop" name="qualifying_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+		      <tr>
+		          <th width="100">斗神商店</th>
+		          <td class="form-inline">
+		             <select class="doushen_shop chosen" id="doushen_shop" name="doushen_shop[]" multiple="multiple" placeholder="请选择自动购买的商品"></select>
+		          </td>
+		      <tr>
+            </table>
+			<div class="col-md-12 text-center"><button type="button" class="btn btn-primary submitConfig">保存</button></div>
+		</form>
+		</div>
+		<div class="row">
+			<div class="logs">日志</div>
+		</div>
+	</div>
+<script type="text/javascript" src="/plugins/chosen/chosen.jquery.js"></script>
+<script type="text/javascript" src="/plugins/artDialog/dialog.js"></script>
+<script src="/static/js/zyhx.common.js"></script>
+<script src="/static/js/zyhx.index.js"></script>
+<script type="text/javascript">
+</script>
+</body>
+</html>

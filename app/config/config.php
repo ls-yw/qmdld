@@ -10,6 +10,7 @@ return new \Phalcon\Config([
     'database' => require_once APP_PATH.'/config/database.php',
     'redis' => require_once APP_PATH.'/config/redis.php',
     'dldUrl' => require_once APP_PATH.'/config/url.php',
+    'zyhxUrl' => require_once APP_PATH.'/config/zyhxurl.php',
     'modules' => require_once APP_PATH.'/config/modules.php',
     'application' => [
         'appDir'         => APP_PATH . '/',

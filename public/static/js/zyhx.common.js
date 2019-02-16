@@ -175,7 +175,7 @@ function initChosen(){
 
 function getLog()
 {
-	$.post("/index/log/current",function(result){
+	$.post("/index/log/current?cmd=zyhx",function(result){
 		if(result.code == 0){
 			setTimeout('getLog()', 3000);
 			$('#index .logs').html(result.data);

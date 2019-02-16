@@ -6,8 +6,10 @@ use Basic\BaseController;
 class LogController extends BaseController{
 
     public function currentAction() {
+        $cmd = $this->request->getQuery('cmd');
+        if(!$cmd || empty($cmd))$cmd = 'dld';
         $uid = $this->_user['id'];
-        $file = $this->config->application->actionDir.$uid.'/'.date('Ymd').'.log';
+        $file = $this->config->application->actionDir.$uid.'/'.$cmd.date('Ymd').'.log';
         if(!file_exists($file)){
             return $this->ajaxReturn('暂无日志', 0, '成功');
         }

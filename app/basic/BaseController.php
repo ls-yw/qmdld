@@ -6,7 +6,7 @@ class BaseController extends \Phalcon\Mvc\Controller
     protected $_user;
     
     private $_whiteRouter = [
-        'index' => ['index','login', 'user', ''],
+        'index' => ['index','login', 'user', 'zyhx'],
         'dld' => ['config'],
     ];
 
@@ -14,7 +14,7 @@ class BaseController extends \Phalcon\Mvc\Controller
 	public function initialize()
 	{
 	    $this->_user = $this->session->has('user') ? $this->session->get('user') : null;
-	    $this->accessRestriction();
+// 	    $this->accessRestriction();
     }
     
     /**
