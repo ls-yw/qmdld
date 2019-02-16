@@ -12,7 +12,7 @@ class ZyhxTask extends BaseTask
         $users = (new User())->getList(['auto'=>1, 'project'=>'zyhx']);
         foreach ($users as $user) {
             if(empty($user['h5token']))continue;
-            system('/usr/bin/php /data/html/my/qmdld/tasks/cli.php zyhx home '.$user['id'].'  >> /data/logs/task-dld-zyhx.log');
+            system('/usr/bin/php /data/html/my/qmdld/tasks/cli.php keepzyhx main '.$user['id'].'  >> /data/logs/task-dld-zyhx.log');
         }
     }
     

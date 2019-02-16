@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50633
 File Encoding         : 65001
 
-Date: 2019-02-16 15:25:14
+Date: 2019-02-16 18:14:18
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -152,7 +152,7 @@ CREATE TABLE `user` (
 INSERT INTO `user` VALUES ('1', 'yls', '6084512', 'o8FFywJcAMLAEAo-1Xh7YkIlR0dI', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', '178c07a6117d5c7d7139a46db7456f4c', 'dld', '1');
 INSERT INTO `user` VALUES ('2', 'yj', '769448', '', 'oKIwA0aGacUIRZjEHNXgzQvT65CA', '', 'dld', '1');
 INSERT INTO `user` VALUES ('3', 'ylsxh', '636428', '', 'oKIwA0eHZyXEDaUICvhtyE8EJuts', '', 'dld', '1');
-INSERT INTO `user` VALUES ('4', 'ylszyhx', '0', '', '', 'a22828dc5da694b01fbbdfce645035d8', 'zyhx', '1');
+INSERT INTO `user` VALUES ('4', 'ylszyhx', '6460484098682207206', '', 'f40b80b85b7ec31b0c3d4486b02e18cd', 'f40b80b85b7ec31b0c3d4486b02e18cd', 'zyhx', '1');
 
 -- ----------------------------
 -- Table structure for user_config

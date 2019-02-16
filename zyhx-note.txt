@@ -1,0 +1,9 @@
+token:
+f40b80b85b7ec31b0c3d4486b02e18cd
+a22828dc5da694b01fbbdfce645035d8
+
+
+
+url:https://homeland.ffom.qq.com/role/info?timestamp=1550305205&plat=1&token=&userdata=3
+param:{"RoleID":6460484098682207206}
+return:{"HomeID":18020345973303003,"HomeOwner":6460484098682207206,"FavorNum":0,"FavorList":null,"RoleID":6460484098682207206,"userdata":"3"}
