@@ -96,7 +96,7 @@ class ZyhxHomeService extends BaseService
             if(!$r)return false;
             Log::zyhx($user['id'], '采摘'.$home['NurseryID'].'号土地，+'.$data['Num'].$this->_configData['plant']['crop'][$data['ResID']]);
             //去种植
-            $this->add($user, $home['NurseryID']);
+            $this->add($user, $home['NurseryID'], $plantId);
             return true;
         }else{
             return false;
