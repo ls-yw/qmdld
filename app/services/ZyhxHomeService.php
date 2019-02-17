@@ -32,7 +32,7 @@ class ZyhxHomeService extends BaseService
 			Log::zyhx($user['id'], "粮食{$homeData['FoodNum']} 木材{$homeData['WoodNum']} 石材{$homeData['StoneNum']}");
 			
 			$plantArr = ['food'=>$homeData['FoodNum'], 'wood'=>$homeData['WoodNum'], 'stone'=>$homeData['StoneNum']];
-			$muValue = max($plantArr);
+			$muValue = min($plantArr);
 			$mu = array_search($muValue, $plantArr);
 			$plantId = end($this->_plantList[$mu]);
 			
