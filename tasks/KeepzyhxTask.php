@@ -47,6 +47,16 @@ class KeepzyhxTask extends BaseTask
      */
     public function home($user)
     {
+		$runKey = 'home_run_'.$user['id'];
+		
+		if(Redis::getInstance()->exists($key)){
+			echo '已在跑';
+			return false;
+		}
+		
+		Redis::getInstance()->setex($runKey, 30, time());
+		
+		
         $limitTime = 120;
         echo 'running home '.$user['id'].PHP_EOL;
         $key = 'home_time_'.$user['id'];
@@ -61,6 +71,7 @@ class KeepzyhxTask extends BaseTask
         (new ZyhxHomeService())->main($user);
         
         Redis::getInstance()->setex($key, 86400, time());
+		Redis::getInstance()->del($runKey);
     }
     
 }
