@@ -16,6 +16,12 @@ class ZyhxHomeService extends BaseService
             ],
         ]
     ];
+	
+	public $_plantList = [
+		'stone' => [59200044],
+		'wood' => [59200024],
+		'food' => [59200004],
+	];
     
     public function main($user)
     {
@@ -23,6 +29,13 @@ class ZyhxHomeService extends BaseService
         $homeData = $this->getInfo($user);
         if($homeData){
             Log::zyhx($user['id'], '家园有'.$homeData['Plant']['ListNum'].'块土地有作物');
+			Log::zyhx($user['id'], "粮食{$homeData['FoodNum']} 木材{$homeData['WoodNum']} 石材{$homeData['StoneNum']}");
+			
+			$plantArr = ['food'=>$homeData['FoodNum'], 'wood'=>$homeData['WoodNum'], 'stone'=>$homeData['StoneNum']];
+			$muValue = max($plantArr);
+			$mu = array_search($muValue, $plantArr);
+			$plantId = end($this->_plantList[$mu]);
+			
             for($i=0;$i<6;$i++){
                 $plantInfo = '';
                 foreach ($homeData['Plant']['List'] as $val){
@@ -33,11 +46,11 @@ class ZyhxHomeService extends BaseService
                     Log::zyhx($user['id'], '土地'.$plantInfo['NurseryID'].' '.$this->_configData['plant']['crop'][$plantInfo['CropID']].",{$plantInfo['ProductNum']}/{$plantInfo['TotalNum']}，".($Mature > 0 ? "还有{$Mature}秒后成熟" : '可摘'));
                     if($Mature <= 0 && !empty($user['h5token'])){
                         //已成熟，去采摘
-                        $this->harvest($user, $plantInfo);
+                        $this->harvest($user, $plantInfo, $plantId);
                     }
                 }else{
                     //去种植
-                    $this->add($user, ($i+1));
+                    $this->add($user, ($i+1), $plantId);
                 }
             }
             
@@ -66,7 +79,7 @@ class ZyhxHomeService extends BaseService
         }
     }
     
-    public function harvest($user, $home)
+    public function harvest($user, $home, $plantId)
     {
         $url = $this->_config->zyhxUrl->url."/plant/harvest?timestamp=".time()."&plat=1&userdata=17&token={$user['h5token']}";
         $params = [];
@@ -90,14 +103,14 @@ class ZyhxHomeService extends BaseService
         }
     }
     
-    public function add($user, $nurseryID)
+    public function add($user, $nurseryID, $plantId)
     {
         $url = $this->_config->zyhxUrl->url."/plant/add?timestamp=".time()."&plat=1&userdata=14&token={$user['h5token']}";
         $params = [];
         $params['HomeID']=18020345973303003;
         $params['NurseryID']=$nurseryID;
         $params['RoleID']=(int)$user['uid'];
-        $params['ResID']= 59200004;
+        $params['ResID']= $plantId;
         
         
         $result = Curl::zyhx($url, $params);
