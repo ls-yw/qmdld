@@ -16,7 +16,7 @@ class KeepzyhxTask extends BaseTask
             echo date('Y-m-d H:i:s')."\t{$lockKey} 程序已被锁住".PHP_EOL;
             exit;
         }
-        Redis::getInstance()->setex($lockKey, 1800 , 'lock');
+        Redis::getInstance()->setex($lockKey, 300 , 'lock');
         
         $user = (new User())->getById($userId);
         
