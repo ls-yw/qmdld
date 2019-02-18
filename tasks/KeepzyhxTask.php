@@ -56,7 +56,7 @@ class KeepzyhxTask extends BaseTask
 		
 		Redis::getInstance()->setex($runKey, 30, time());
 		
-        $limitTime = 0;
+        $limitTime = 30;
         echo 'running home '.$user['id'].PHP_EOL;
         $key = 'home_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){
