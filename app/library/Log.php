@@ -68,7 +68,7 @@ class Log
      * @param string $fileName
      * @create_time 2017年11月23日
      */
-    public static function zyhx(int $uid, $message, $mark='') {
+    public static function zyhx($uid, $message, $mark='') {
         if(is_array($message) || is_object($message))$message = json_encode($message, JSON_UNESCAPED_UNICODE);
     
         $logPath = DI::getDefault()->get('config')->application->actionDir.$uid.'/';

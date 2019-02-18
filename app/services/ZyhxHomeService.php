@@ -11,8 +11,11 @@ class ZyhxHomeService extends BaseService
         'plant' => [
             'crop' => [
                 '59200044' => '风铃草',
+                '59200044' => '紫色风铃草',
                 '59200004' => '苹果',
+                '59200005' => '紫色苹果',
                 '59200024' => '槐树',
+                '59200024' => '紫色槐树',
             ],
         ]
     ];
@@ -22,14 +25,15 @@ class ZyhxHomeService extends BaseService
 		'wood' => [59200024],
 		'food' => [59200004],
 	];
-    
+	
     public function main($user)
     {
-        Log::zyhx($user['id'], '查看家园');
-        $homeData = $this->getInfo($user);
+        $this->_user = $user;
+        Log::zyhx($this->_user['id'], '查看家园');
+        $homeData = $this->getInfo($this->_user);
         if($homeData){
-            Log::zyhx($user['id'], '家园有'.$homeData['Plant']['ListNum'].'块土地有作物');
-			Log::zyhx($user['id'], "粮食{$homeData['FoodNum']} 木材{$homeData['WoodNum']} 石材{$homeData['StoneNum']}");
+            Log::zyhx($this->_user['id'], '家园有'.$homeData['Plant']['ListNum'].'块土地有作物');
+			Log::zyhx($this->_user['id'], "粮食{$homeData['FoodNum']} 木材{$homeData['WoodNum']} 石材{$homeData['StoneNum']}");
 			
 			$plantArr = ['food'=>$homeData['FoodNum'], 'wood'=>$homeData['WoodNum'], 'stone'=>$homeData['StoneNum']];
 			$muValue = min($plantArr);
@@ -41,16 +45,17 @@ class ZyhxHomeService extends BaseService
                 foreach ($homeData['Plant']['List'] as $val){
                     if($val['NurseryID'] == ($i+1))$plantInfo = $val;
                 }
+                if(empty($this->_user['h5token']))return false;
                 if(!empty($plantInfo)){
                     $Mature = $plantInfo['MatureTime'] - time();
-                    Log::zyhx($user['id'], '土地'.$plantInfo['NurseryID'].' '.$this->_configData['plant']['crop'][$plantInfo['CropID']].",{$plantInfo['ProductNum']}/{$plantInfo['TotalNum']}，".($Mature > 0 ? "还有{$Mature}秒后成熟" : '可摘'));
-                    if($Mature <= 0 && !empty($user['h5token'])){
+                    Log::zyhx($this->_user['id'], '土地'.$plantInfo['NurseryID'].' '.$this->_configData['plant']['crop'][$plantInfo['CropID']].",{$plantInfo['ProductNum']}/{$plantInfo['TotalNum']}，".($Mature > 0 ? "还有{$Mature}秒后成熟" : '可摘'));
+                    if($Mature <= 0 && !empty($this->_user['h5token'])){
                         //已成熟，去采摘
-                        $this->harvest($user, $plantInfo, $plantId);
+                        $this->harvest($this->_user, $plantInfo, $plantId);
                     }
                 }else{
                     //去种植
-                    $this->add($user, ($i+1), $plantId);
+                    $this->add($this->_user, ($i+1), $plantId);
                 }
             }
             

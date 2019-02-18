@@ -32,12 +32,12 @@ class BaseService{
 	
 	protected function dealZyhxResult($result, $user_id) {
 	    if(isset($result['Ret'])){  //鉴权失败
-	        if($result['Ret'] == -402){
+	        if($result['Ret'] == -402 || $result['Ret'] == -401){
 	            Log::zyhx($user_id, $result['Msg']);
-	            (new User())->updateData(['h5token'=>''], ['id'=>$user_id]);
+	            $a = (new User())->updateData(['h5token'=>''], ['id'=>$user_id]);
 	            if(!empty($this->_user)){
 	                $this->_user['h5token'] = '';
-	                DI::getDefault()->get('session')->set('user', $this->_user);
+	                if(PHP_SAPI != 'cli')DI::getDefault()->get('session')->set('user', $this->_user);
 	            }
 	            return false;
 	        }

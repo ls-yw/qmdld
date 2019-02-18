@@ -10,6 +10,7 @@ class KeepzyhxTask extends BaseTask
     public function mainAction($params)
     {
         $userId = $params[0];
+        
         if(empty($userId))return false;
         $lockKey = 'keep_lock_'.$userId;
         if(Redis::getInstance()->exists($lockKey)){
@@ -26,16 +27,15 @@ class KeepzyhxTask extends BaseTask
             Redis::getInstance()->del($lockKey);
             return false;
         }
-        $prevTime = (int)Redis::getInstance()->get($key);
-        if(time() - $prevTime <= 60){
-            Redis::getInstance()->del($lockKey);
-            return false;
-        }
-        Redis::getInstance()->setex($key, 86400, time());
         
+//         $prevTime = (int)Redis::getInstance()->get($key);
+//         if(time() - $prevTime <= 60){
+//             Redis::getInstance()->del($lockKey);
+//             return false;
+//         }
+        Redis::getInstance()->setex($key, 86400, time());
         //家园
         $this->home($user);
-        
         
         Redis::getInstance()->del($lockKey);
     }
@@ -49,21 +49,21 @@ class KeepzyhxTask extends BaseTask
     {
 		$runKey = 'home_run_'.$user['id'];
 		
-		if(Redis::getInstance()->exists($key)){
+		if(Redis::getInstance()->exists($runKey)){
 			echo '已在跑';
 			return false;
 		}
 		
 		Redis::getInstance()->setex($runKey, 30, time());
 		
-		
-        $limitTime = 120;
+        $limitTime = 0;
         echo 'running home '.$user['id'].PHP_EOL;
         $key = 'home_time_'.$user['id'];
         if(Redis::getInstance()->exists($key)){
             $prevTime = Redis::getInstance()->get($key);
             if(time() - $prevTime <= $limitTime){
                 echo 'home时间未到 '.$user['id'].' 还差'.($limitTime - (time() - $prevTime)).'秒'.PHP_EOL;
+                Redis::getInstance()->del($runKey);
                 return false;
             }
         }
