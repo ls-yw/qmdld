@@ -4,6 +4,7 @@ namespace Basic;
 use Phalcon\DI;
 use Library\Log;
 use Models\User;
+use Services\ZyhxLoginService;
 
 class BaseService{
     
@@ -34,9 +35,21 @@ class BaseService{
 	    if(isset($result['Ret'])){  //鉴权失败
 	        if($result['Ret'] == -402 || $result['Ret'] == -401){
 	            Log::zyhx($user_id, $result['Msg']);
-	            $a = (new User())->updateData(['h5token'=>''], ['id'=>$user_id]);
+	            
+	            //token失效，从新获取token
+	            $newToken = (new ZyhxLoginService())->updateToken($user_id);
+	            if($newToken == false){
+	                $a = (new User())->updateData(['h5token'=>''], ['id'=>$user_id]);
+	                if(!empty($this->_user)){
+	                    $this->_user['h5token'] = '';
+	                    if(PHP_SAPI != 'cli')DI::getDefault()->get('session')->set('user', $this->_user);
+	                }
+	                return false;
+	            }
+	            Log::zyhx($user_id, '重新获取token:'.$newToken);
+	            $a = (new User())->updateData(['h5token'=>$newToken], ['id'=>$user_id]);
 	            if(!empty($this->_user)){
-	                $this->_user['h5token'] = '';
+	                $this->_user['h5token'] = $newToken;
 	                if(PHP_SAPI != 'cli')DI::getDefault()->get('session')->set('user', $this->_user);
 	            }
 	            return false;

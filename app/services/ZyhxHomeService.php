@@ -12,19 +12,32 @@ class ZyhxHomeService extends BaseService
             'crop' => [
                 '59200044' => '风铃草',
                 '59200045' => '紫色风铃草',
+                '59200046' => '风雨兰',
+                '59200047' => '紫色风雨兰',
+                
                 '59200004' => '苹果',
                 '59200005' => '紫色苹果',
+                '59200006' => '葡萄',
+                '59200007' => '紫色葡萄',
+                
                 '59200024' => '槐树',
                 '59200025' => '紫色槐树',
+                '59200026' => '桃树',
+                '59200027' => '紫色桃树',
+                
             ],
         ]
     ];
 	
 	public $_plantList = [
-		'stone' => [59200044],
-		'wood' => [59200024],
-		'food' => [59200004],
+		'stone' => [59200044,59200046],
+		'wood' => [59200024,59200026],
+		'food' => [59200004,59200006],
 	];
+	
+	public $_plantStone = ['ResID'=>59200046, 'num'=>2];
+	public $_plantWood  = ['ResID'=>59200026, 'num'=>2];
+	public $_plantFood  = ['ResID'=>59200006, 'num'=>2];
 	
     public function main($user)
     {
@@ -117,6 +130,24 @@ class ZyhxHomeService extends BaseService
         $params['RoleID']=(int)$user['uid'];
         $params['ResID']= $plantId;
         
+        if(isset($this->_plantStone) && isset($this->_plantWood) && isset($this->_plantFood)){
+            $plant = $this->getInfo($user);
+            if($plant){
+                $stoneNum = $woodNum = $foodNum = 0;
+                foreach ($plant['Plant']['List'] as $val){
+                    if(in_array($val['CropID'], $this->_plantList['stone']))$stoneNum++;
+                    if(in_array($val['CropID'], $this->_plantList['wood']))$woodNum++;
+                    if(in_array($val['CropID'], $this->_plantList['food']))$foodNum++;
+                }
+                if($stoneNum < $this->_plantStone['num']){
+                    $params['ResID']= $this->_plantStone['ResID'];
+                }elseif ($woodNum < $this->_plantWood['num']){
+                    $params['ResID']= $this->_plantWood['ResID'];
+                }elseif ($foodNum < $this->_plantFood['num']){
+                    $params['ResID']= $this->_plantFood['ResID'];
+                }
+            }
+        }
         
         $result = Curl::zyhx($url, $params);
         
@@ -134,6 +165,13 @@ class ZyhxHomeService extends BaseService
     //POST /plant/list?timestamp=1550302616&plat=1&token=f40b80b85b7ec31b0c3d4486b02e18cd&userdata=13 HTTP/1.1
     //{"HomeID":18020345973303003,"OpenID":"o62FBvxeKw6R2pcSJWSt_ifAAzTo"}
     //
+    
+    
+    //https://homeland.ffom.qq.com/plant/list?timestamp=1550733029&plat=1&token=b37f24886cc0ca1c405f159576c6f1e3&userdata=13
+//     public function plantList()
+//     {
+        
+//     }
     
     
     /**采摘单个土地

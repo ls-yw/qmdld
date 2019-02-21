@@ -3,6 +3,7 @@ use Basic\BaseTask;
 use Models\User;
 use Services\ZyhxHomeService;
 use Library\Redis;
+use Services\ZyhxLoginService;
 
 class ZyhxTask extends BaseTask
 {
@@ -11,7 +12,11 @@ class ZyhxTask extends BaseTask
     {
         $users = (new User())->getList(['auto'=>1, 'project'=>'zyhx']);
         foreach ($users as $user) {
-            if(empty($user['h5token']))continue;
+            if(empty($user['h5token'])){
+                $newToken = (new ZyhxLoginService())->updateToken($user['id']);
+                if(!$newToken)continue;
+                (new User())->updateData(['h5token'=>$newToken], ['id'=>$user['id']]);
+            }
             system('/usr/bin/php /data/html/my/qmdld/tasks/cli.php keepzyhx main '.$user['id'].'  >> /data/logs/task-dld-zyhx.log');
         }
     }

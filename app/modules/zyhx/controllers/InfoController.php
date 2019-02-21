@@ -2,7 +2,6 @@
 namespace Modules\Zyhx\Controllers;
 
 use Basic\BaseController;
-use Services\BasicService;
 use Models\UserInfo;
 use Models\User;
 
