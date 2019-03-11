@@ -177,7 +177,7 @@ class ZyhxHomeService extends BaseService
         $params['RoleID']=(int)$user['uid'];
         $params['ResID']= $plantId;
         
-        if($this->__plantImportant && !empty($this->_plantImportant)){
+        if(isset($this->_plantImportant) && !empty($this->_plantImportant)){
             $params['ResID']=$this->_plantImportant;
         }else{
             if(isset($this->_plantStone) && isset($this->_plantWood) && isset($this->_plantFood)){
