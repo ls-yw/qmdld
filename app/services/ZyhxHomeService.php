@@ -30,6 +30,8 @@ class ZyhxHomeService extends BaseService
                 '59200061' => '紫色紫罗兰',
                 '59200062' => '醉蝶花',
                 '59200063' => '紫色醉蝶花',
+                '59200064' => '摇钱树',
+                '59990174' => '紫色摇钱树',
                 
                 '59200004' => '苹果',
                 '59200005' => '紫色苹果',
@@ -76,12 +78,13 @@ class ZyhxHomeService extends BaseService
 	public $_plantList = [
 		'stone' => [59200044,59200046,59200048,59200050,59200052],
 		'wood' => [59200024,59200026,59200028,59200030,59200032],
-		'food' => [59200004,59200006,59200008,59200010,59200012],
+		'food' => [59200004,59200006,59200008,59200010,59200012,59200064],
 	];
 	
 // 	public $_plantStone = ['ResID'=>59200048, 'num'=>2];
 // 	public $_plantWood  = ['ResID'=>59200028, 'num'=>2];
 // 	public $_plantFood  = ['ResID'=>59200008, 'num'=>2];
+    public $_plantImportant = 59200064;
 	
     public function main($user)
     {
@@ -174,24 +177,29 @@ class ZyhxHomeService extends BaseService
         $params['RoleID']=(int)$user['uid'];
         $params['ResID']= $plantId;
         
-        if(isset($this->_plantStone) && isset($this->_plantWood) && isset($this->_plantFood)){
-            $plant = $this->getInfo($user);
-            if($plant){
-                $stoneNum = $woodNum = $foodNum = 0;
-                foreach ($plant['Plant']['List'] as $val){
-                    if(in_array($val['CropID'], $this->_plantList['stone']))$stoneNum++;
-                    if(in_array($val['CropID'], $this->_plantList['wood']))$woodNum++;
-                    if(in_array($val['CropID'], $this->_plantList['food']))$foodNum++;
-                }
-                if($stoneNum < $this->_plantStone['num']){
-                    $params['ResID']= $this->_plantStone['ResID'];
-                }elseif ($woodNum < $this->_plantWood['num']){
-                    $params['ResID']= $this->_plantWood['ResID'];
-                }elseif ($foodNum < $this->_plantFood['num']){
-                    $params['ResID']= $this->_plantFood['ResID'];
+        if($this->__plantImportant && !empty($this->_plantImportant)){
+            $params['ResID']=$this->_plantImportant;
+        }else{
+            if(isset($this->_plantStone) && isset($this->_plantWood) && isset($this->_plantFood)){
+                $plant = $this->getInfo($user);
+                if($plant){
+                    $stoneNum = $woodNum = $foodNum = 0;
+                    foreach ($plant['Plant']['List'] as $val){
+                        if(in_array($val['CropID'], $this->_plantList['stone']))$stoneNum++;
+                        if(in_array($val['CropID'], $this->_plantList['wood']))$woodNum++;
+                        if(in_array($val['CropID'], $this->_plantList['food']))$foodNum++;
+                    }
+                    if($stoneNum < $this->_plantStone['num']){
+                        $params['ResID']= $this->_plantStone['ResID'];
+                    }elseif ($woodNum < $this->_plantWood['num']){
+                        $params['ResID']= $this->_plantWood['ResID'];
+                    }elseif ($foodNum < $this->_plantFood['num']){
+                        $params['ResID']= $this->_plantFood['ResID'];
+                    }
                 }
             }
         }
+        
         
         $result = Curl::zyhx($url, $params);
         
